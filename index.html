@@ -1,0 +1,2054 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>MPI Matematika - Penjumlahan Bilangan sampai 20 | KBC Kemenag RI</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Fonts: Inter & Amiri (Al-Qur'an) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400&family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- html2pdf.js CDN for PDF Download -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  
+  <!-- Canvas Confetti -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            emeraldCustom: '#047857',
+            emeraldDark: '#064e3b',
+            goldCustom: '#d97706',
+            goldLight: '#fef3c7',
+            goldAccent: '#f59e0b'
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+            quran: ['Amiri', 'serif']
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: linear-gradient(135deg, #ecfdf5 0%, #f0fdf4 50%, #fffbeb 100%);
+      min-height: 100vh;
+      user-select: none;
+    }
+    
+    .glass-card {
+      background: rgba(255, 255, 255, 0.92);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(16, 185, 129, 0.2);
+    }
+    
+    .glass-modal {
+      background: rgba(15, 23, 42, 0.65);
+      backdrop-filter: blur(8px);
+    }
+
+    /* Pulse & Float Animations */
+    @keyframes floatSlow {
+      0%, 100% { transform: translateY(0px) rotate(0deg); }
+      50% { transform: translateY(-8px) rotate(1deg); }
+    }
+    .animate-float {
+      animation: floatSlow 4s ease-in-out infinite;
+    }
+
+    @keyframes pulseGlow {
+      0%, 100% { transform: scale(1); filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.4)); }
+      50% { transform: scale(1.05); filter: drop-shadow(0 0 15px rgba(245, 158, 11, 0.8)); }
+    }
+    .animate-glow {
+      animation: pulseGlow 2.5s infinite ease-in-out;
+    }
+
+    /* Moving Objects Animation for Math Material */
+    @keyframes slideInRight {
+      0% { opacity: 0; transform: translateX(40px); }
+      100% { opacity: 1; transform: translateX(0); }
+    }
+    .animate-slide-in {
+      animation: slideInRight 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+
+    @keyframes bounceItem {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-10px) scale(1.1); }
+    }
+    .gem-item:hover {
+      animation: bounceItem 0.5s ease infinite;
+      cursor: pointer;
+    }
+
+    .quran-text {
+      font-family: 'Amiri', serif;
+      line-height: 2.2;
+    }
+
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 4px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #10b981;
+      border-radius: 4px;
+    }
+
+    /* Printable PDF Styling */
+    @media print {
+      body * {
+        visibility: hidden;
+      }
+      #pdfReportContainer, #pdfReportContainer * {
+        visibility: visible;
+      }
+      #pdfReportContainer {
+        position: absolute;
+        left: 0;
+        top: 0;
+        width: 100%;
+      }
+      .no-print {
+        display: none !important;
+      }
+    }
+
+    .drag-item {
+      touch-action: none;
+      cursor: grab;
+    }
+    .drag-item:active {
+      cursor: grabbing;
+    }
+  </style>
+</head>
+<body class="text-slate-800 antialiased overflow-x-hidden">
+
+  <!-- ========================================== -->
+  <!-- 1. SPLASH SCREEN -->
+  <!-- ========================================== -->
+  <div id="splashScreen" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-gradient-to-br from-emerald-800 via-emerald-700 to-teal-900 text-white transition-opacity duration-700">
+    <div class="relative flex items-center justify-center mb-6">
+      <div class="absolute inset-0 rounded-full bg-amber-400 blur-xl opacity-40 animate-pulse"></div>
+      <div class="w-28 h-28 rounded-3xl bg-white/10 backdrop-blur-md border border-white/20 flex items-center justify-center text-5xl shadow-2xl animate-bounce">
+        🧮
+      </div>
+    </div>
+    <span class="px-4 py-1.5 rounded-full bg-amber-400/20 text-amber-300 font-semibold text-xs tracking-wider uppercase mb-3 border border-amber-400/30">
+      Fase A • Kelas I Madrasah Ibtidaiyah
+    </span>
+    <h1 class="text-2xl md:text-4xl font-extrabold text-center px-4 tracking-tight">
+      MPI Matematika Interaktif
+    </h1>
+    <p class="text-emerald-200 mt-2 text-sm md:text-base font-medium text-center">
+      Penjumlahan Bilangan sampai 20 • Berbasis Cinta (KBC)
+    </p>
+    <div class="mt-8 flex items-center space-x-2 text-xs text-emerald-300">
+      <i class="fas fa-spinner fa-spin"></i>
+      <span>Memuat Pengalaman Belajar Berbasis Cinta...</span>
+    </div>
+  </div>
+
+  <!-- MAIN APP CONTAINER -->
+  <div id="app" class="min-h-screen flex flex-col justify-between p-3 md:p-6 max-w-7xl mx-auto">
+    
+    <!-- HEADER APP -->
+    <header id="appHeader" class="hidden glass-card rounded-2xl p-3 md:p-4 mb-4 shadow-md border border-emerald-200 flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center space-x-3">
+        <!-- LOGO KEMENAG & LOGO MIN 1 KOTA GORONTALO HEADER -->
+        <div class="flex items-center space-x-2 bg-gradient-to-r from-emerald-50 to-teal-50 px-3 py-1.5 rounded-xl border border-emerald-300 shadow-sm">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Logo_Kementerian_Agama_RI.png" alt="Logo Kemenag RI" class="w-9 h-9 object-contain drop-shadow-md">
+          <div class="h-7 w-px bg-emerald-300/80"></div>
+          <img src="https://iili.io/J2V8g9G.png" alt="Logo MIN 1 Kota Gorontalo" class="w-9 h-9 object-contain drop-shadow-md">
+        </div>
+        <div>
+          <h2 class="text-xs md:text-sm font-bold uppercase tracking-wider text-emerald-800">MIN 1 Kota Gorontalo</h2>
+          <h1 class="text-sm md:text-base font-extrabold text-slate-800 leading-tight">MPI Matematika - Penjumlahan Sampai 20</h1>
+        </div>
+      </div>
+      
+      <div class="flex items-center space-x-3">
+        <div id="userInfoHeader" class="bg-emerald-50 border border-emerald-200 px-3 py-1.5 rounded-xl flex items-center space-x-2">
+          <i class="fas fa-user-circle text-emerald-600 text-lg"></i>
+          <div>
+            <p id="headerStudentName" class="text-xs font-bold text-emerald-900 leading-tight">Siswa</p>
+            <p id="headerStudentClass" class="text-[10px] text-emerald-700">Kelas I MI</p>
+          </div>
+        </div>
+        <button onclick="goToMenuScreen()" class="p-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white transition shadow" title="Kembali ke Menu Utama">
+          <i class="fas fa-home text-lg"></i>
+        </button>
+      </div>
+    </header>
+
+    <!-- 2. COVER SCREEN -->
+    <section id="coverScreen" class="flex-1 flex flex-col justify-between items-center py-6 px-4 glass-card rounded-3xl shadow-xl relative overflow-hidden my-auto border-2 border-emerald-600/20">
+      <div class="absolute -top-10 -right-10 w-48 h-48 bg-amber-300/30 rounded-full blur-3xl pointer-events-none"></div>
+      <div class="absolute -bottom-10 -left-10 w-48 h-48 bg-emerald-400/20 rounded-full blur-3xl pointer-events-none"></div>
+
+      <div class="w-full max-w-xl flex flex-col items-center mb-2">
+        <div class="flex items-center justify-center space-x-4 bg-white/95 backdrop-blur-md px-6 py-3 rounded-2xl border-2 border-emerald-500/30 shadow-lg hover:shadow-xl transition">
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white p-1 border-2 border-emerald-600 shadow-md flex items-center justify-center">
+              <img src="https://upload.wikimedia.org/wikipedia/commons/1/12/Logo_Kementerian_Agama_RI.png" alt="Logo Kemenag RI" class="w-full h-full object-contain">
+            </div>
+            <div class="text-left hidden sm:block">
+              <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">Kementerian Agama RI</p>
+              <p class="text-xs font-extrabold text-slate-800">Ikhlas Beramal</p>
+            </div>
+          </div>
+
+          <div class="h-10 w-0.5 bg-gradient-to-b from-emerald-300 via-amber-400 to-emerald-300 rounded-full"></div>
+
+          <div class="flex items-center space-x-3">
+            <div class="w-12 h-12 md:w-14 md:h-14 rounded-2xl bg-white p-1 border-2 border-amber-400 shadow-md flex items-center justify-center">
+              <img src="https://iili.io/J2V8g9G.png" alt="Logo MIN 1 Kota Gorontalo" class="w-full h-full object-contain">
+            </div>
+            <div class="text-left hidden sm:block">
+              <p class="text-[10px] font-bold text-emerald-700 uppercase tracking-wider">MIN 1 Kota Gorontalo</p>
+              <p class="text-xs font-extrabold text-slate-800">Madrasah Ibtidaiyah</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex flex-wrap items-center justify-center gap-2 mb-2">
+        <span class="px-4 py-1.5 rounded-full bg-gradient-to-r from-emerald-800 to-emerald-700 text-xs font-bold tracking-wide shadow-sm flex items-center gap-1.5 text-white">
+          <i class="fas fa-kaaba text-amber-300"></i> Kurikulum Berbasis Cinta (KBC)
+        </span>
+        <span class="px-3.5 py-1.5 rounded-full bg-amber-500 text-white text-xs font-bold tracking-wide shadow-sm">
+          Fase A • Kelas I Madrasah Ibtidaiyah
+        </span>
+      </div>
+
+      <div class="text-center my-2 max-w-2xl">
+        <h1 class="text-3xl md:text-5xl font-extrabold text-slate-900 tracking-tight leading-tight mb-2">
+          Penjumlahan Bilangan <br class="hidden md:inline"/>
+          <span class="bg-gradient-to-r from-emerald-700 via-teal-600 to-amber-600 bg-clip-text text-transparent">
+            Sampai 20
+          </span>
+        </h1>
+        <p class="text-slate-600 text-xs md:text-sm font-medium max-w-xl mx-auto">
+          Belajar berhitung menyenangkan dengan pendekatan kasih sayang, nilai Al-Qur'an, dan konteks indah alam Gorontalo.
+        </p>
+      </div>
+
+      <div class="w-full max-w-md my-3 p-4 rounded-2xl bg-white/80 border border-emerald-200 shadow-inner flex flex-col items-center justify-center relative">
+        <svg class="w-full h-44 animate-float" viewBox="0 0 400 180" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="10" y="10" width="380" height="160" rx="20" fill="#F0FDF4" stroke="#10B981" stroke-dasharray="4 4" stroke-width="2"/>
+          
+          <g transform="translate(30, 45)">
+            <rect x="0" y="0" width="130" height="90" rx="15" fill="#FEF3C7" stroke="#F59E0B" stroke-width="2"/>
+            <text x="65" y="25" font-family="Inter" font-weight="bold" font-size="14" fill="#B45309" text-anchor="middle">7 Jagung</text>
+            <text x="35" y="60" font-size="28">🌽</text>
+            <text x="65" y="60" font-size="28">🌽</text>
+            <text x="95" y="60" font-size="28">🌽</text>
+          </g>
+
+          <g transform="translate(180, 70)">
+            <circle cx="20" cy="20" r="22" fill="#059669"/>
+            <text x="20" y="28" font-family="Inter" font-weight="900" font-size="26" fill="white" text-anchor="middle">+</text>
+          </g>
+
+          <g transform="translate(240, 45)">
+            <rect x="0" y="0" width="130" height="90" rx="15" fill="#E0F2FE" stroke="#0284C7" stroke-width="2"/>
+            <text x="65" y="25" font-family="Inter" font-weight="bold" font-size="14" fill="#0369A1" text-anchor="middle">5 Ikan</text>
+            <text x="35" y="60" font-size="28">🐟</text>
+            <text x="65" y="60" font-size="28">🐟</text>
+            <text x="95" y="60" font-size="28">🐟</text>
+          </g>
+
+          <g transform="translate(120, 140)">
+            <rect x="0" y="0" width="160" height="30" rx="8" fill="#D97706"/>
+            <text x="80" y="20" font-family="Inter" font-weight="bold" font-size="13" fill="white" text-anchor="middle">7 + 5 = 12 Kasih Sayang</text>
+          </g>
+        </svg>
+      </div>
+
+      <div class="w-full max-w-xl flex flex-col sm:flex-row items-center justify-center gap-3 mt-3">
+        <button onclick="openDeveloperModal()" class="w-full sm:w-auto flex-1 py-3 px-5 rounded-xl bg-white border-2 border-emerald-600 text-emerald-800 font-bold hover:bg-emerald-50 transition shadow-sm flex items-center justify-center gap-2">
+          <i class="fas fa-id-card text-emerald-600"></i> Informasi Pengembang
+        </button>
+        
+        <button onclick="openObjectiveModal()" class="w-full sm:w-auto flex-1 py-3 px-5 rounded-xl bg-white border-2 border-amber-500 text-amber-800 font-bold hover:bg-amber-50 transition shadow-sm flex items-center justify-center gap-2">
+          <i class="fas fa-bullseye text-amber-600"></i> Tujuan Pembelajaran
+        </button>
+        
+        <button onclick="goToIdentityScreen()" class="w-full sm:w-auto flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-extrabold hover:from-emerald-700 hover:to-teal-800 transition shadow-lg transform hover:-translate-y-0.5 flex items-center justify-center gap-2 text-base">
+          MULAI <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- 3. FORM IDENTITAS SISWA SCREEN -->
+    <section id="identityScreen" class="hidden flex-1 flex flex-col items-center justify-center p-4">
+      <div class="w-full max-w-md glass-card rounded-3xl p-6 md:p-8 shadow-2xl border border-emerald-200">
+        <div class="text-center mb-6">
+          <div class="w-16 h-16 rounded-2xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center text-3xl mb-3 shadow-inner">
+            <i class="fas fa-user-graduate"></i>
+          </div>
+          <h2 class="text-2xl font-extrabold text-slate-900">Selamat Datang, Sahabat Kecil!</h2>
+          <p class="text-xs md:text-sm text-slate-600 mt-1">Isi identitas dirimu dengan teliti sebelum memasuki petualangan matematika berhitung.</p>
+        </div>
+
+        <form onsubmit="handleIdentitySubmit(event)" class="space-y-4">
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5" for="inputName">
+              Nama Lengkap Siswa <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <i class="fas fa-user absolute left-4 top-3.5 text-slate-400"></i>
+              <input type="text" id="inputName" required placeholder="Contoh: Muhammad Rayhan" class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200 outline-none font-medium text-slate-800 text-sm transition">
+            </div>
+          </div>
+
+          <div>
+            <label class="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5" for="inputClass">
+              Kelas / Rombel <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <i class="fas fa-school absolute left-4 top-3.5 text-slate-400"></i>
+              <select id="inputClass" required class="w-full pl-11 pr-4 py-3 rounded-xl border border-slate-300 focus:border-emerald-600 focus:ring-2 focus:ring-emerald-200 outline-none font-medium text-slate-800 text-sm transition">
+                <option value="">-- Pilih Kelas --</option>
+                <option value="Kelas I A (MIN 1 Kota Gorontalo)">Kelas I A (MIN 1 Kota Gorontalo)</option>
+                <option value="Kelas I B (MIN 1 Kota Gorontalo)">Kelas I B (MIN 1 Kota Gorontalo)</option>
+                <option value="Kelas I C (MIN 1 Kota Gorontalo)">Kelas I C (MIN 1 Kota Gorontalo)</option>
+                <option value="Kelas I D (MIN 1 Kota Gorontalo)">Kelas I D (MIN 1 Kota Gorontalo)</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="identityError" class="hidden text-xs text-red-600 bg-red-50 p-3 rounded-xl border border-red-200 flex items-center gap-2">
+            <i class="fas fa-exclamation-circle text-red-500"></i>
+            <span>Harap lengkapi nama dan kelas kamu terlebih dahulu!</span>
+          </div>
+
+          <button type="submit" class="w-full py-3.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-700 hover:to-teal-800 text-white font-extrabold shadow-lg transition flex items-center justify-center gap-2">
+            Lanjut ke Panduan <i class="fas fa-arrow-right"></i>
+          </button>
+        </form>
+      </div>
+    </section>
+
+    <!-- 4. PANDUAN PENGGUNA SCREEN -->
+    <section id="guideScreen" class="hidden flex-1 flex flex-col justify-between glass-card rounded-3xl p-6 shadow-xl border border-emerald-100 my-auto max-w-3xl mx-auto w-full">
+      <div>
+        <div class="flex items-center justify-between mb-4 border-b border-emerald-100 pb-3">
+          <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 flex items-center gap-1.5">
+            <i class="fas fa-compass"></i> Panduan Pengguna MPI
+          </span>
+          <span id="guideSlideBadge" class="px-3 py-1 bg-emerald-100 text-emerald-800 text-xs font-extrabold rounded-full">
+            Slide 1 / 3
+          </span>
+        </div>
+
+        <div id="guideSlideContent" class="min-h-[260px] flex flex-col justify-center"></div>
+      </div>
+
+      <div class="flex items-center justify-between mt-6 pt-4 border-t border-slate-100">
+        <button id="btnGuidePrev" onclick="changeGuideSlide(-1)" class="px-5 py-2.5 rounded-xl bg-slate-100 text-slate-600 font-bold hover:bg-slate-200 transition text-sm flex items-center gap-1.5">
+          <i class="fas fa-chevron-left"></i> Kembali
+        </button>
+        
+        <button id="btnGuideNext" onclick="changeGuideSlide(1)" class="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition text-sm flex items-center gap-1.5">
+          Lanjut <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- 5. MENU UTAMA SCREEN -->
+    <section id="menuScreen" class="hidden flex-1 flex flex-col justify-center py-4">
+      <div class="text-center mb-6">
+        <span class="px-3.5 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold border border-emerald-200">
+          Pilihan Modul & Fitur Pembelajaran Interaktif
+        </span>
+        <h2 class="text-2xl md:text-3xl font-extrabold text-slate-900 mt-2">
+          Pilih Langkah Petualanganmu
+        </h2>
+        <p class="text-xs md:text-sm text-slate-600 mt-1 max-w-lg mx-auto">
+          Selesaikan modul berurutan atau buka Buku Panduan KBC, Referensi Penerbit Erlangga, Animasi, & Gems Visual!
+        </p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-5 max-w-5xl mx-auto w-full px-2 mb-6">
+        <!-- CARD 1: BELAJAR -->
+        <div id="cardBelajar" onclick="startBelajarModule()" class="glass-card rounded-3xl p-6 border-2 border-emerald-500 shadow-xl hover:shadow-2xl transition transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between relative overflow-hidden group">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-emerald-500/10 rounded-bl-full pointer-events-none"></div>
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="w-14 h-14 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl shadow-md group-hover:scale-110 transition">
+                <i class="fas fa-book-open"></i>
+              </div>
+              <span id="badgeBelajar" class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-extrabold flex items-center gap-1">
+                <i class="fas fa-lock-open text-emerald-600"></i> TERBUKA
+              </span>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-900 mb-2">1. BELAJAR</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+              6 Slide materi mendalam penjumlahan sampai 20, visual kontekstual Gorontalo, Al-Qur'an, dan tantangan interaktif.
+            </p>
+          </div>
+          <button class="w-full py-2.5 rounded-xl bg-emerald-600 text-white text-xs font-bold hover:bg-emerald-700 transition flex items-center justify-center gap-2">
+            Mulai Belajar <i class="fas fa-arrow-right"></i>
+          </button>
+        </div>
+
+        <!-- CARD 2: BERMAIN -->
+        <div id="cardBermain" onclick="handleLockedMenuClick('bermain')" class="glass-card rounded-3xl p-6 border-2 border-slate-200 shadow-md transition flex flex-col justify-between relative overflow-hidden cursor-pointer opacity-80 hover:opacity-100">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-amber-500/10 rounded-bl-full pointer-events-none"></div>
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div id="iconBermainBg" class="w-14 h-14 rounded-2xl bg-slate-200 text-slate-500 flex items-center justify-center text-2xl shadow-md">
+                <i class="fas fa-gamepad"></i>
+              </div>
+              <span id="badgeBermain" class="px-3 py-1 rounded-full bg-slate-200 text-slate-600 text-xs font-extrabold flex items-center gap-1">
+                <i class="fas fa-lock text-amber-600"></i> TERKUNCI
+              </span>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-900 mb-2">2. BERMAIN</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+              10 Tantangan gamifikasi interaktif berstimulus literasi-numerasi Gorontalo (Drag & Drop, Menjodohkan, Mengurutkan).
+            </p>
+          </div>
+          <button id="btnBermain" class="w-full py-2.5 rounded-xl bg-slate-200 text-slate-500 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer">
+            <i class="fas fa-lock"></i> Selesaikan Belajar
+          </button>
+        </div>
+
+        <!-- CARD 3: BERLATIH -->
+        <div id="cardBerlatih" onclick="handleLockedMenuClick('berlatih')" class="glass-card rounded-3xl p-6 border-2 border-slate-200 shadow-md transition flex flex-col justify-between relative overflow-hidden cursor-pointer opacity-80 hover:opacity-100">
+          <div class="absolute top-0 right-0 w-24 h-24 bg-teal-500/10 rounded-bl-full pointer-events-none"></div>
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div id="iconBerlatihBg" class="w-14 h-14 rounded-2xl bg-slate-200 text-slate-500 flex items-center justify-center text-2xl shadow-md">
+                <i class="fas fa-pen-nib"></i>
+              </div>
+              <span id="badgeBerlatih" class="px-3 py-1 rounded-full bg-slate-200 text-slate-600 text-xs font-extrabold flex items-center gap-1">
+                <i class="fas fa-lock text-amber-600"></i> TERKUNCI
+              </span>
+            </div>
+            <h3 class="text-xl font-extrabold text-slate-900 mb-2">3. BERLATIH</h3>
+            <p class="text-xs text-slate-600 leading-relaxed mb-4">
+              10 Soal Asesmen Berjenjang (Level 1, Level 2, & Level 3 HOTS) untuk menguji pemahaman total & cetak laporan.
+            </p>
+          </div>
+          <button id="btnBerlatih" class="w-full py-2.5 rounded-xl bg-slate-200 text-slate-500 text-xs font-bold flex items-center justify-center gap-2 cursor-pointer">
+            <i class="fas fa-lock"></i> Selesaikan Bermain
+          </button>
+        </div>
+      </div>
+
+      <div class="max-w-5xl mx-auto w-full px-2">
+        <div class="flex items-center justify-between mb-3">
+          <h4 class="text-xs font-extrabold text-emerald-800 uppercase tracking-wider flex items-center gap-2">
+            <i class="fas fa-plus-circle text-amber-500"></i> Fitur Tambahan & Referensi Terintegrasi
+          </h4>
+          <span class="text-[10px] font-bold text-slate-500">MIN 1 Kota Gorontalo</span>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <div onclick="openPanduanDikdasmenModal()" class="glass-card p-4 rounded-2xl border border-emerald-300 hover:border-emerald-500 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
+            <div class="flex items-center space-x-3 mb-2">
+              <div class="w-10 h-10 rounded-xl bg-emerald-100 text-emerald-700 flex items-center justify-center text-lg font-bold group-hover:scale-110 transition">
+                <i class="fas fa-book-bookmark"></i>
+              </div>
+              <div>
+                <h5 class="text-xs font-extrabold text-slate-900">1. Buku Panduan</h5>
+                <p class="text-[10px] text-emerald-700 font-semibold">Dikdasmen Kemenag RI</p>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-600 mb-3">Panduan pelaksanaan Kurikulum Berbasis Cinta (KBC).</p>
+            <span class="text-[10px] font-bold text-emerald-700 group-hover:underline flex items-center gap-1">
+              Buka Panduan <i class="fas fa-external-link-alt text-[9px]"></i>
+            </span>
+          </div>
+
+          <div onclick="openBukuErlanggaModal()" class="glass-card p-4 rounded-2xl border border-amber-300 hover:border-amber-500 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
+            <div class="flex items-center space-x-3 mb-2">
+              <div class="w-10 h-10 rounded-xl bg-amber-100 text-amber-700 flex items-center justify-center text-lg font-bold group-hover:scale-110 transition">
+                <i class="fas fa-journal-whills"></i>
+              </div>
+              <div>
+                <h5 class="text-xs font-extrabold text-slate-900">2. Buku Erlangga</h5>
+                <p class="text-[10px] text-amber-700 font-semibold">Murid & Guru SD/MI</p>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-600 mb-3">Buku Teks Utama Matematika Penerbit Erlangga.</p>
+            <span class="text-[10px] font-bold text-amber-700 group-hover:underline flex items-center gap-1">
+              Lihat Buku Erlangga <i class="fas fa-book-open text-[9px]"></i>
+            </span>
+          </div>
+
+          <div onclick="openAnimasiMateriModal()" class="glass-card p-4 rounded-2xl border border-blue-300 hover:border-blue-500 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
+            <div class="flex items-center space-x-3 mb-2">
+              <div class="w-10 h-10 rounded-xl bg-blue-100 text-blue-700 flex items-center justify-center text-lg font-bold group-hover:scale-110 transition">
+                <i class="fas fa-film"></i>
+              </div>
+              <div>
+                <h5 class="text-xs font-extrabold text-slate-900">3. Animasi Bergerak</h5>
+                <p class="text-[10px] text-blue-700 font-semibold">Simulasi Interaktif</p>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-600 mb-3">Animasi visual konsep gabungan objek bergerak.</p>
+            <span class="text-[10px] font-bold text-blue-700 group-hover:underline flex items-center gap-1">
+              Putar Animasi <i class="fas fa-play-circle text-[9px]"></i>
+            </span>
+          </div>
+
+          <div onclick="openGemsGambarModal()" class="glass-card p-4 rounded-2xl border border-purple-300 hover:border-purple-500 shadow-sm hover:shadow-md transition cursor-pointer flex flex-col justify-between group">
+            <div class="flex items-center space-x-3 mb-2">
+              <div class="w-10 h-10 rounded-xl bg-purple-100 text-purple-700 flex items-center justify-center text-lg font-bold group-hover:scale-110 transition">
+                <i class="fas fa-gem"></i>
+              </div>
+              <div>
+                <h5 class="text-xs font-extrabold text-slate-900">4. Gems Gambar</h5>
+                <p class="text-[10px] text-purple-700 font-semibold">Galeri Manipulatif</p>
+              </div>
+            </div>
+            <p class="text-[11px] text-slate-600 mb-3">Koleksi gambar & manipulatif visual matematika.</p>
+            <span class="text-[10px] font-bold text-purple-700 group-hover:underline flex items-center gap-1">
+              Jelajahi Gems <i class="fas fa-shapes text-[9px]"></i>
+            </span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 6. LAYER MENU 1: BELAJAR -->
+    <section id="belajarScreen" class="hidden flex-1 flex flex-col justify-between">
+      <div class="glass-card rounded-2xl p-3 mb-3 flex items-center justify-between text-xs">
+        <div class="flex items-center space-x-2">
+          <span class="w-7 h-7 rounded-lg bg-emerald-600 text-white font-bold flex items-center justify-center">
+            <i class="fas fa-book"></i>
+          </span>
+          <span id="belajarSlideTitle" class="font-bold text-slate-800">Slide Materi</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <div class="w-32 bg-slate-200 h-2 rounded-full overflow-hidden hidden sm:block">
+            <div id="belajarProgressBar" class="bg-emerald-600 h-full w-1/6 transition-all duration-300"></div>
+          </div>
+          <span id="belajarSlideCounter" class="font-extrabold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-md">
+            Slide 1 dari 6
+          </span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-3xl p-4 md:p-6 shadow-xl border border-emerald-100 flex-1 overflow-y-auto max-h-[70vh]">
+        <div id="belajarSlideContainer"></div>
+      </div>
+
+      <div class="flex items-center justify-between mt-4">
+        <button id="btnBelajarPrev" onclick="changeBelajarSlide(-1)" class="px-5 py-2.5 rounded-xl bg-slate-200 text-slate-700 font-bold hover:bg-slate-300 transition text-sm flex items-center gap-1.5">
+          <i class="fas fa-chevron-left"></i> Slide Sebelumnya
+        </button>
+
+        <button id="btnBelajarNext" onclick="changeBelajarSlide(1)" class="px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition text-sm flex items-center gap-1.5 shadow-md">
+          Slide Berikutnya <i class="fas fa-chevron-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- 7. LAYER MENU 2: BERMAIN -->
+    <section id="bermainScreen" class="hidden flex-1 flex flex-col justify-between">
+      <div class="glass-card rounded-2xl p-3 mb-3 flex items-center justify-between text-xs">
+        <div class="flex items-center space-x-2">
+          <span class="w-7 h-7 rounded-lg bg-amber-500 text-white font-bold flex items-center justify-center">
+            <i class="fas fa-gamepad"></i>
+          </span>
+          <span class="font-bold text-slate-800">Tantangan Bermain Literasi & Numerasi</span>
+        </div>
+        <div class="flex items-center space-x-3">
+          <span class="text-amber-700 font-extrabold bg-amber-50 px-2.5 py-1 rounded-lg border border-amber-200 flex items-center gap-1">
+            <i class="fas fa-star text-amber-500"></i> Skor: <span id="gameScoreText">0</span>
+          </span>
+          <span id="gameCounterText" class="font-extrabold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-md">
+            Tantangan 1 / 10
+          </span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-3xl p-4 md:p-6 shadow-xl border border-amber-100 flex-1 overflow-y-auto max-h-[72vh]">
+        <div id="bermainContainer"></div>
+      </div>
+
+      <div class="flex items-center justify-between mt-3">
+        <div id="gameFeedbackBadge" class="text-xs font-bold text-slate-600">
+          *Pilih atau susun jawaban dengan teliti.
+        </div>
+        <button id="btnNextGame" onclick="submitGameAnswer()" class="px-6 py-2.5 rounded-xl bg-amber-500 text-white font-extrabold hover:bg-amber-600 transition text-sm shadow-md flex items-center gap-2">
+          Jawab & Lanjut <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- 8. LAYER MENU 3: BERLATIH -->
+    <section id="berlatihScreen" class="hidden flex-1 flex flex-col justify-between">
+      <div class="glass-card rounded-2xl p-3 mb-3 flex items-center justify-between text-xs">
+        <div class="flex items-center space-x-2">
+          <span class="w-7 h-7 rounded-lg bg-teal-600 text-white font-bold flex items-center justify-center">
+            <i class="fas fa-file-signature"></i>
+          </span>
+          <span class="font-bold text-slate-800">Asesmen Pembelajaran Teruji</span>
+        </div>
+        <div class="flex items-center space-x-2">
+          <span id="quizLevelBadge" class="px-3 py-1 rounded-full text-[11px] font-extrabold bg-blue-100 text-blue-800 border border-blue-200">
+            Level 1 - Pemahaman
+          </span>
+          <span id="quizCounterText" class="font-extrabold text-teal-800 bg-teal-100 px-2.5 py-1 rounded-md">
+            Soal 1 / 10
+          </span>
+        </div>
+      </div>
+
+      <div class="glass-card rounded-3xl p-4 md:p-6 shadow-xl border border-teal-100 flex-1 overflow-y-auto max-h-[72vh]">
+        <div id="berlatihContainer"></div>
+      </div>
+
+      <div class="flex items-center justify-between mt-3">
+        <button id="btnQuizPrev" onclick="navigateQuiz(-1)" class="px-4 py-2 rounded-xl bg-slate-200 text-slate-700 font-bold hover:bg-slate-300 transition text-xs flex items-center gap-1">
+          <i class="fas fa-arrow-left"></i> Soal Lalu
+        </button>
+        <button id="btnQuizNext" onclick="navigateQuiz(1)" class="px-6 py-2.5 rounded-xl bg-teal-600 text-white font-extrabold hover:bg-teal-700 transition text-sm shadow-md flex items-center gap-2">
+          Simpan & Lanjut <i class="fas fa-arrow-right"></i>
+        </button>
+      </div>
+    </section>
+
+    <!-- 9. LAPORAN HASIL BELAJAR SCREEN -->
+    <section id="reportScreen" class="hidden flex-1 flex flex-col justify-center py-4">
+      <div class="glass-card rounded-3xl p-6 md:p-8 shadow-2xl border border-emerald-200 max-w-4xl mx-auto w-full">
+        <!-- Notifikasi Status Pengiriman Data GAS -->
+        <div id="gasSyncStatus" class="hidden mb-4 p-3 rounded-xl text-xs font-bold transition"></div>
+
+        <div id="pdfReportContainer" class="p-4 bg-white rounded-2xl border border-slate-200">
+          <div class="flex items-center justify-between border-b-2 border-emerald-700 pb-4 mb-4">
+            <div class="flex items-center space-x-3">
+              <img id="pdfAvatarImg" src="https://iili.io/CSAHRQ1.png" onerror="this.onerror=null; this.src='https://placehold.co/100x100/047857/ffffff?text=LH';" class="w-14 h-14 rounded-full border-2 border-amber-400 object-cover shadow-sm">
+              <div>
+                <h2 class="text-base font-extrabold text-emerald-900 leading-tight">MIN 1 KOTA GORONTALO</h2>
+                <p class="text-xs text-slate-600 font-semibold">Media Pembelajaran Interaktif (MPI) Matematika Kelas I</p>
+                <p class="text-[11px] text-slate-500">Pengembang: Lisna Habibie, M.Pd | Email: lisnahabibie6@gmail.com</p>
+              </div>
+            </div>
+            <div class="text-right">
+              <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold block mb-1">
+                KBC Kemenag RI
+              </span>
+              <p id="pdfDate" class="text-[10px] text-slate-500">Tanggal: 28 Oktober 2026</p>
+            </div>
+          </div>
+
+          <div class="text-center my-3">
+            <h1 class="text-xl font-black text-slate-900 tracking-tight uppercase">LAPORAN HASIL BELAJAR SISWA</h1>
+            <p class="text-xs text-slate-600">Topik: Penjumlahan Bilangan Sampai 20 Berbasis Cinta</p>
+          </div>
+
+          <div class="grid grid-cols-2 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-200 text-xs mb-4">
+            <div>
+              <p class="text-slate-500">Nama Siswa:</p>
+              <p id="pdfStudentName" class="font-extrabold text-slate-800 text-sm">--</p>
+            </div>
+            <div>
+              <p class="text-slate-500">Kelas / Rombel:</p>
+              <p id="pdfStudentClass" class="font-extrabold text-slate-800 text-sm">--</p>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-4">
+            <div class="bg-emerald-50 border border-emerald-200 p-3 rounded-xl text-center">
+              <p class="text-[10px] uppercase font-bold text-emerald-700">Skor Bermain</p>
+              <p id="pdfGameScore" class="text-2xl font-black text-emerald-900">100</p>
+              <p class="text-[10px] text-emerald-600">10 Tantangan Selesai</p>
+            </div>
+            <div class="bg-amber-50 border border-amber-200 p-3 rounded-xl text-center">
+              <p class="text-[10px] uppercase font-bold text-amber-700">Nilai Akhir Asesmen</p>
+              <p id="pdfQuizScore" class="text-2xl font-black text-amber-900">0 / 100</p>
+              <p id="pdfPredicate" class="text-[10px] font-bold text-amber-600">Predikat: --</p>
+            </div>
+            <div class="bg-teal-50 border border-teal-200 p-3 rounded-xl text-center">
+              <p class="text-[10px] uppercase font-bold text-teal-700">Penguasaan HOTS</p>
+              <p id="pdfHotsScore" class="text-2xl font-black text-teal-900">0%</p>
+              <p class="text-[10px] text-teal-600">Level 3 Penalaran</p>
+            </div>
+          </div>
+
+          <div class="border border-slate-200 rounded-xl p-3 mb-4 text-xs">
+            <h4 class="font-bold text-slate-800 mb-2 border-b pb-1">Rincian Penguasaan Level Asesmen:</h4>
+            <div class="grid grid-cols-3 gap-2 text-center">
+              <div class="bg-slate-50 p-2 rounded-lg">
+                <span class="block text-[10px] text-slate-500">Level 1 (Pemahaman)</span>
+                <span id="lvl1Detail" class="font-bold text-slate-800">0 / 24 Poin</span>
+              </div>
+              <div class="bg-slate-50 p-2 rounded-lg">
+                <span class="block text-[10px] text-slate-500">Level 2 (Aplikasi)</span>
+                <span id="lvl2Detail" class="font-bold text-slate-800">0 / 40 Poin</span>
+              </div>
+              <div class="bg-slate-50 p-2 rounded-lg">
+                <span class="block text-[10px] text-slate-500">Level 3 (Penalaran HOTS)</span>
+                <span id="lvl3Detail" class="font-bold text-slate-800">0 / 36 Poin</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="space-y-3 text-xs mb-4">
+            <div class="bg-amber-50/70 border border-amber-200 p-3 rounded-xl">
+              <h4 class="font-bold text-amber-900 mb-1 flex items-center gap-1.5">
+                <i class="fas fa-heart text-amber-600"></i> Catatan Karakter Kurikulum Berbasis Cinta (KBC):
+              </h4>
+              <p id="pdfKbcNote" class="text-slate-700 leading-relaxed italic">
+                Siswa menunjukkan ketelitian dan rasa cinta ilmu yang tinggi serta keteguhan dalam menyelesaikan perhitungan penjumlahan demi kelestarian lingkungan Gorontalo.
+              </p>
+            </div>
+
+            <div class="bg-emerald-50/70 border border-emerald-200 p-3 rounded-xl">
+              <h4 class="font-bold text-emerald-900 mb-1 flex items-center gap-1.5">
+                <i class="fas fa-comment-dots text-emerald-600"></i> Rekomendasi Guru & Tindak Lanjut:
+              </h4>
+              <p id="pdfTeacherRecommendation" class="text-slate-700 leading-relaxed">
+                Mempertahankan prestasi berhitung dan rutin mengaplikasikan penjumlahan dalam kehidupan sehari-hari di lingkungan keluarga dan madrasah.
+              </p>
+            </div>
+          </div>
+
+          <div class="flex justify-between items-end pt-4 border-t border-slate-200 text-xs">
+            <div class="text-center">
+              <p class="text-slate-500 mb-10">Orang Tua / Wali Siswa</p>
+              <p class="font-bold text-slate-800">( .................................... )</p>
+            </div>
+            <div class="text-center">
+              <p class="text-slate-500 mb-10">Guru Kelas / Pengembang MPI</p>
+              <p class="font-extrabold text-slate-900">Lisna Habibie, M.Pd</p>
+              <p class="text-[10px] text-slate-500">NIP. MIN 1 Kota Gorontalo</p>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6 flex flex-wrap items-center justify-between gap-3 no-print">
+          <button onclick="goToMenuScreen()" class="px-5 py-2.5 rounded-xl bg-slate-200 text-slate-700 font-bold hover:bg-slate-300 transition text-xs flex items-center gap-2">
+            <i class="fas fa-arrow-left"></i> Kembali ke Menu Utama
+          </button>
+          <div class="flex items-center gap-2">
+            <button onclick="downloadReportPDF()" class="px-6 py-2.5 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 text-white font-extrabold hover:from-emerald-700 hover:to-teal-800 transition text-xs shadow-lg flex items-center gap-2">
+              <i class="fas fa-file-pdf text-amber-300 text-sm"></i> Unduh / Cetak Laporan PDF
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- MODALS OVERLAY -->
+  <div id="developerModal" class="hidden fixed inset-0 z-50 glass-modal flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl border-2 border-emerald-500 relative">
+      <button onclick="closeDeveloperModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold flex items-center justify-center transition">✕</button>
+      <div class="flex flex-col items-center text-center">
+        <div class="relative mb-4">
+          <div class="absolute inset-0 rounded-full bg-gradient-to-tr from-emerald-500 to-amber-400 blur-md opacity-70"></div>
+          <img src="https://iili.io/CSAHRQ1.png" onerror="this.onerror=null; this.src='https://placehold.co/150x150/047857/ffffff?text=Lisna+Habibie';" alt="Foto Lisna Habibie" class="relative w-28 h-28 rounded-full border-4 border-white object-cover shadow-xl">
+        </div>
+        <span class="px-3 py-1 rounded-full bg-emerald-100 text-emerald-800 text-xs font-bold mb-2">Senior Instructional Designer & Author</span>
+        <h3 class="text-2xl font-extrabold text-slate-900">Lisna Habibie, M.Pd</h3>
+        <p class="text-sm font-semibold text-emerald-700 mb-4">MIN 1 Kota Gorontalo</p>
+        <div class="w-full bg-slate-50 p-4 rounded-2xl border border-slate-200 space-y-2 text-xs text-left mb-6">
+          <div class="flex items-center space-x-2 text-slate-700">
+            <i class="fas fa-envelope text-emerald-600 w-5"></i>
+            <span class="font-medium">lisnahabibie6@gmail.com</span>
+          </div>
+          <div class="flex items-center space-x-2 text-slate-700">
+            <i class="fas fa-map-marker-alt text-emerald-600 w-5"></i>
+            <span>Kota Gorontalo, Provinsi Gorontalo</span>
+          </div>
+          <div class="flex items-center space-x-2 text-slate-700">
+            <i class="fas fa-certificate text-emerald-600 w-5"></i>
+            <span>Pakar Kurikulum Berbasis Cinta (KBC Kemenag RI)</span>
+          </div>
+        </div>
+        <button onclick="closeDeveloperModal()" class="w-full py-3 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-bold transition text-xs shadow-md">Kembali ke Cover</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="objectiveModal" class="hidden fixed inset-0 z-50 glass-modal flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 md:p-8 max-w-xl w-full shadow-2xl border-2 border-amber-500 relative">
+      <button onclick="closeObjectiveModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold flex items-center justify-center transition">✕</button>
+      <div class="space-y-4">
+        <div class="flex items-center space-x-3 border-b border-amber-100 pb-3">
+          <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-2xl shadow-md">
+            <i class="fas fa-bullseye"></i>
+          </div>
+          <div>
+            <h3 class="text-xl font-extrabold text-slate-900">Tujuan Pembelajaran</h3>
+            <p class="text-xs text-amber-700 font-semibold">Cinta Ilmu & Matematika Berorientasi Karakter</p>
+          </div>
+        </div>
+        <div class="bg-amber-50/80 p-4 rounded-2xl border border-amber-200">
+          <p class="text-xs md:text-sm text-slate-800 leading-relaxed font-medium">
+            "Murid mampu menentukan penjumlahan bilangan cacah sampai 20 agar dapat menumbuhkan sikap teliti, tekun, dan percaya diri dalam menyelesaikan penjumlahan sebagai wujud <strong class="text-amber-800">Cinta Ilmu</strong>."
+          </p>
+        </div>
+        <div class="bg-emerald-50/80 p-4 rounded-2xl border border-emerald-200 space-y-2">
+          <span class="text-[10px] uppercase font-bold text-emerald-800 tracking-wider">Integrasi Al-Qur'an (QS. Al-Baqarah: 261)</span>
+          <p class="quran-text text-xl text-right text-emerald-900 font-semibold dir-rtl">مَّثَلُ الَّذِينَ يُنفِقُونَ أَمْوَٰلَهُمْ فِي سَبِيلِ اللَّهِ كَمَثَلِ حَبَّةٍ أَنۢبَتَتْ سَبْعَ سَنَابِلَ فِي كُلِّ سُنۢبُلَةٍ مِّا۟ئَةُ حَبَّةٍ</p>
+          <p class="text-xs text-slate-600 italic">"Perumpamaan orang yang menginfakkan hartanya di jalan Allah seperti sebutir biji yang menumbuhkan tujuh tangkai..."</p>
+        </div>
+        <button onclick="closeObjectiveModal()" class="w-full py-3 rounded-xl bg-amber-500 hover:bg-amber-600 text-white font-bold transition text-xs shadow-md">Kembali ke Cover</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="lockedModal" class="hidden fixed inset-0 z-50 glass-modal flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 max-w-md w-full shadow-2xl border-2 border-amber-400 text-center space-y-4">
+      <div class="w-16 h-16 rounded-full bg-amber-100 text-amber-600 mx-auto flex items-center justify-center text-3xl shadow-inner">
+        <i class="fas fa-lock"></i>
+      </div>
+      <h3 class="text-xl font-extrabold text-slate-900">Modul Masih Terkunci!</h3>
+      <p id="lockedModalText" class="text-xs text-slate-600 leading-relaxed">Selesaikan tahapan modul sebelumnya terlebih dahulu untuk membuka menu ini.</p>
+      <button onclick="closeLockedModal()" class="w-full py-2.5 rounded-xl bg-slate-800 text-white font-bold text-xs hover:bg-slate-900 transition">Saya Mengerti</button>
+    </div>
+  </div>
+
+  <div id="panduanDikdasmenModal" class="hidden fixed inset-0 z-50 glass-modal flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 max-w-2xl w-full shadow-2xl border-2 border-emerald-500 relative max-h-[90vh] flex flex-col justify-between">
+      <button onclick="closePanduanDikdasmenModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold flex items-center justify-center transition">✕</button>
+      <div>
+        <div class="flex items-center space-x-3 border-b border-emerald-100 pb-3 mb-4">
+          <div class="w-12 h-12 rounded-2xl bg-emerald-600 text-white flex items-center justify-center text-2xl shadow-md">
+            <i class="fas fa-book-bookmark"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900">Buku Panduan Dikdasmen Kemenag RI</h3>
+            <p class="text-xs text-emerald-700 font-semibold">Kurikulum Berbasis Cinta (KBC) & Pedoman Pembelajaran Madrasah</p>
+          </div>
+        </div>
+
+        <div class="space-y-3 text-xs text-slate-700 leading-relaxed max-h-[55vh] overflow-y-auto pr-1">
+          <div class="bg-emerald-50 p-3.5 rounded-2xl border border-emerald-200">
+            <h4 class="font-bold text-emerald-900 mb-1 flex items-center gap-1.5 text-sm">
+              <i class="fas fa-check-circle text-emerald-600"></i> Ringkasan Panduan Implementasi KBC
+            </h4>
+            <p>Buku Panduan Dikdasmen Kemenag RI menekankan integrasi nilai-nilai spiritual, afektif, dan kecintaan pada ilmu pengetahuan dalam kurikulum pendidikan madrasah Ibtidaiyah (MI).</p>
+          </div>
+
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-200 space-y-2">
+            <h5 class="font-bold text-slate-800">4 Pilar Utama KBC Kemenag RI:</h5>
+            <ul class="list-disc list-inside space-y-1 text-slate-600">
+              <li><strong>Cinta Allah & Rasul:</strong> Menanamkan tauhid dan adab dalam menuntut ilmu.</li>
+              <li><strong>Cinta Diri & Sesama:</strong> Membangun nilai saling tolong-menolong & kolaborasi.</li>
+              <li><strong>Cinta Ilmu Pengetahuan:</strong> Kegemaran belajar matematika dengan teliti & gembira.</li>
+              <li><strong>Cinta Lingkungan Alam:</strong> Mengaitkan konsep angka dengan kelestarian alam tempat tinggal.</li>
+            </ul>
+          </div>
+
+          <div class="p-3 bg-amber-50 rounded-xl border border-amber-200 text-amber-900 flex items-center justify-between">
+            <div>
+              <p class="font-bold">Unduh Dokumen Panduan Resmi (PDF)</p>
+              <p class="text-[10px] text-amber-700">Ukuran berkas: 2.4 MB • Format Kemenag RI</p>
+            </div>
+            <a href="javascript:void(0)" onclick="alert('Mengunduh Buku Panduan Dikdasmen Kemenag RI...');" class="px-3 py-2 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-lg transition shadow flex items-center gap-1">
+              <i class="fas fa-download"></i> Unduh
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <button onclick="closePanduanDikdasmenModal()" class="w-full py-2.5 mt-4 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition text-xs">
+        Tutup Panduan
+      </button>
+    </div>
+  </div>
+
+  <div id="bukuErlanggaModal" class="hidden fixed inset-0 z-50 glass-modal flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 max-w-2xl w-full shadow-2xl border-2 border-amber-500 relative max-h-[90vh] flex flex-col justify-between">
+      <button onclick="closeBukuErlanggaModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold flex items-center justify-center transition">✕</button>
+      <div>
+        <div class="flex items-center space-x-3 border-b border-amber-100 pb-3 mb-4">
+          <div class="w-12 h-12 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-2xl shadow-md">
+            <i class="fas fa-journal-whills"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900">Buku Murid & Guru Penerbit Erlangga</h3>
+            <p class="text-xs text-amber-700 font-semibold">Matematika SD/MI Kelas 1 (Kurikulum Merdeka / KBC)</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-3">
+          <div class="bg-amber-50 p-3.5 rounded-2xl border border-amber-200 flex flex-col justify-between">
+            <div>
+              <span class="px-2 py-0.5 rounded bg-amber-200 text-amber-900 text-[9px] font-bold uppercase">Buku Teks Murid</span>
+              <h4 class="font-extrabold text-slate-900 text-xs mt-1">Matematika Kelas I Erlangga</h4>
+              <p class="text-[11px] text-slate-600 mt-1">Dilengkapi latihan soal bergambar, petunjuk berhitung konkret, dan proyek berhitung interaktif.</p>
+            </div>
+            <button onclick="alert('Membuka pratinjau Buku Murid Erlangga...');" class="mt-3 py-2 px-3 bg-amber-500 text-white font-bold rounded-xl hover:bg-amber-600 text-xs transition flex items-center justify-center gap-1">
+              <i class="fas fa-book-reader"></i> Baca Buku Murid
+            </button>
+          </div>
+
+          <div class="bg-emerald-50 p-3.5 rounded-2xl border border-emerald-200 flex flex-col justify-between">
+            <div>
+              <span class="px-2 py-0.5 rounded bg-emerald-200 text-emerald-900 text-[9px] font-bold uppercase">Panduan Guru</span>
+              <h4 class="font-extrabold text-slate-900 text-xs mt-1">Buku Panduan Guru Erlangga</h4>
+              <p class="text-[11px] text-slate-600 mt-1">Memuat strategi pedagogis, perancangan modul ajar, dan rubrik asesmen berjenjang.</p>
+            </div>
+            <button onclick="alert('Membuka pratinjau Buku Guru Erlangga...');" class="mt-3 py-2 px-3 bg-emerald-600 text-white font-bold rounded-xl hover:bg-emerald-700 text-xs transition flex items-center justify-center gap-1">
+              <i class="fas fa-chalkboard-teacher"></i> Baca Buku Guru
+            </button>
+          </div>
+        </div>
+
+        <div class="p-3 bg-slate-50 rounded-xl border border-slate-200 text-[11px] text-slate-600">
+          <p><strong>Catatan Referensi:</strong> Seluruh contoh soal pada MPI ini telah diselaraskan dengan Capaian Pembelajaran (CP) matematika penerbit Erlangga bab Penjumlahan Sampai 20.</p>
+        </div>
+      </div>
+
+      <button onclick="closeBukuErlanggaModal()" class="w-full py-2.5 mt-4 rounded-xl bg-amber-500 text-white font-bold hover:bg-amber-600 transition text-xs">
+        Tutup Modul Buku
+      </button>
+    </div>
+  </div>
+
+  <div id="animasiMateriModal" class="hidden fixed inset-0 z-50 glass-modal flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 max-w-2xl w-full shadow-2xl border-2 border-blue-500 relative max-h-[90vh] flex flex-col justify-between">
+      <button onclick="closeAnimasiMateriModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold flex items-center justify-center transition">✕</button>
+      <div>
+        <div class="flex items-center space-x-3 border-b border-blue-100 pb-3 mb-4">
+          <div class="w-12 h-12 rounded-2xl bg-blue-600 text-white flex items-center justify-center text-2xl shadow-md">
+            <i class="fas fa-film"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900">Simulasi Animasi Bergerak Matematika</h3>
+            <p class="text-xs text-blue-700 font-semibold">Visualisasi Konseptual Penjumlahan Objek Konkret</p>
+          </div>
+        </div>
+
+        <div class="bg-slate-900 rounded-2xl p-4 text-white text-center shadow-inner relative overflow-hidden mb-3">
+          <p class="text-xs text-blue-300 font-semibold mb-2">Simulasi Animasi: Penggabungan Buah Mangga & Jeruk Gorontalo</p>
+          
+          <div class="h-36 bg-slate-800/80 rounded-xl border border-slate-700 flex items-center justify-around px-4 relative overflow-hidden">
+            <div id="animGroupA" class="flex items-center gap-1">
+              <span class="text-3xl animate-bounce">🥭</span>
+              <span class="text-3xl animate-bounce" style="animation-delay: 0.2s">🥭</span>
+              <span class="text-3xl animate-bounce" style="animation-delay: 0.4s">🥭</span>
+            </div>
+
+            <div class="text-2xl font-black text-amber-400 animate-pulse">+</div>
+
+            <div id="animGroupB" class="flex items-center gap-1">
+              <span class="text-3xl animate-bounce" style="animation-delay: 0.1s">🍊</span>
+              <span class="text-3xl animate-bounce" style="animation-delay: 0.3s">🍊</span>
+            </div>
+
+            <div class="text-2xl font-black text-amber-400 animate-pulse">=</div>
+
+            <div id="animResult" class="px-3 py-2 bg-emerald-600 rounded-xl font-bold text-sm text-white border border-emerald-400">
+              3 + 2 = <span class="text-amber-300 text-lg font-extrabold">5 Buah</span>
+            </div>
+          </div>
+
+          <div class="mt-3 flex justify-center gap-2">
+            <button onclick="triggerAnimSim(4, 3)" class="px-3 py-1.5 rounded-lg bg-blue-600 hover:bg-blue-500 text-xs font-bold transition">Simulasi 4 + 3</button>
+            <button onclick="triggerAnimSim(6, 4)" class="px-3 py-1.5 rounded-lg bg-teal-600 hover:bg-teal-500 text-xs font-bold transition">Simulasi 6 + 4</button>
+            <button onclick="triggerAnimSim(8, 5)" class="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-500 text-xs font-bold transition">Simulasi 8 + 5</button>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-600">Animasi bergerak mempermudah anak Fase A memahami bahwa penjumlahan adalah proses penggabungan dua kelompok benda konkret menjadi satu total.</p>
+      </div>
+
+      <button onclick="closeAnimasiMateriModal()" class="w-full py-2.5 mt-4 rounded-xl bg-blue-600 text-white font-bold hover:bg-blue-700 transition text-xs">
+        Tutup Simulasi Animasi
+      </button>
+    </div>
+  </div>
+
+  <div id="gemsGambarModal" class="hidden fixed inset-0 z-50 glass-modal flex items-center justify-center p-4">
+    <div class="glass-card rounded-3xl p-6 max-w-2xl w-full shadow-2xl border-2 border-purple-500 relative max-h-[90vh] flex flex-col justify-between">
+      <button onclick="closeGemsGambarModal()" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-600 font-bold flex items-center justify-center transition">✕</button>
+      <div>
+        <div class="flex items-center space-x-3 border-b border-purple-100 pb-3 mb-4">
+          <div class="w-12 h-12 rounded-2xl bg-purple-600 text-white flex items-center justify-center text-2xl shadow-md">
+            <i class="fas fa-gem"></i>
+          </div>
+          <div>
+            <h3 class="text-lg font-extrabold text-slate-900">Gems & Galeri Visual Penjumlahan</h3>
+            <p class="text-xs text-purple-700 font-semibold">Manipulatif Gambar Interaktif Pembelajaran Matematika</p>
+          </div>
+        </div>
+
+        <p class="text-xs text-slate-600 mb-3">Klik atau ketuk gems gambar di bawah ini untuk melihat contoh kelompok bilangan secara visual konkret:</p>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 mb-3 max-h-[50vh] overflow-y-auto pr-1">
+          <div onclick="selectGemItem('🌽', 'Jagung Manis', 7)" class="gem-item p-3 bg-amber-50 border border-amber-300 rounded-2xl text-center shadow-sm">
+            <span class="text-3xl block mb-1">🌽</span>
+            <span class="text-xs font-bold text-amber-900 block">7 Jagung</span>
+            <span class="text-[9px] text-amber-700">Agraris Gorontalo</span>
+          </div>
+
+          <div onclick="selectGemItem('🐟', 'Ikan Danau Limboto', 5)" class="gem-item p-3 bg-blue-50 border border-blue-300 rounded-2xl text-center shadow-sm">
+            <span class="text-3xl block mb-1">🐟</span>
+            <span class="text-xs font-bold text-blue-900 block">5 Ikan</span>
+            <span class="text-[9px] text-blue-700">Pesisir Danau</span>
+          </div>
+
+          <div onclick="selectGemItem('🥥', 'Kelapa Pesisir', 8)" class="gem-item p-3 bg-emerald-50 border border-emerald-300 rounded-2xl text-center shadow-sm">
+            <span class="text-3xl block mb-1">🥥</span>
+            <span class="text-xs font-bold text-emerald-900 block">8 Kelapa</span>
+            <span class="text-[9px] text-emerald-700">Teluk Tomini</span>
+          </div>
+
+          <div onclick="selectGemItem('⭐', 'Bintang Prestasi', 10)" class="gem-item p-3 bg-purple-50 border border-purple-300 rounded-2xl text-center shadow-sm">
+            <span class="text-3xl block mb-1">⭐</span>
+            <span class="text-xs font-bold text-purple-900 block">10 Bintang</span>
+            <span class="text-[9px] text-purple-700">Cinta Ilmu</span>
+          </div>
+        </div>
+
+        <div id="gemDisplayBox" class="p-3 bg-purple-50 rounded-2xl border border-purple-200 text-center text-xs font-bold text-purple-900">
+          Klik salah satu Gems Gambar di atas untuk menampilkan manipulatif visual!
+        </div>
+      </div>
+
+      <button onclick="closeGemsGambarModal()" class="w-full py-2.5 mt-4 rounded-xl bg-purple-600 text-white font-bold hover:bg-purple-700 transition text-xs">
+        Tutup Gems Galeri
+      </button>
+    </div>
+  </div>
+
+  <!-- JAVASCRIPT LOGIC DENGAN KONEKSI GOOGLE APPS SCRIPT -->
+  <script>
+    /* =========================================================================
+       DEKLARASI URL GOOGLE APPS SCRIPT (GAS)
+       ========================================================================= */
+    const GAS_URL = "https://script.google.com/macros/s/AKfycbxfYVFgCjWaWdqADnZARnsa-ZqBgDQjMkCmS1yYSQl6i46Ahn_F_kTwubZb0GCjSKQYmA/exec";
+
+    /* GLOBAL STATE */
+    const state = {
+      studentName: '',
+      studentClass: '',
+      isBelajarCompleted: false,
+      isBermainCompleted: false,
+      currentGuideIndex: 0,
+      currentBelajarIndex: 0,
+      currentGameIndex: 0,
+      gameScore: 0,
+      gameAnswers: [],
+      currentQuizIndex: 0,
+      quizAnswers: new Array(10).fill(null),
+      quizScore: 0
+    };
+
+    /* DATA PANDUAN PENGGUNA */
+    const guideSlides = [
+      {
+        icon: "fa-rocket",
+        title: "Selamat Datang di MPI Matematika!",
+        desc: "Aplikasi Media Pembelajaran Interaktif ini dirancang khusus untuk mempermudahmu menguasai penjumlahan bilangan sampai 20 dengan gembira dan penuh kasih sayang."
+      },
+      {
+        icon: "fa-route",
+        title: "Alur Pembelajaran Terkunci Bertahap",
+        desc: "Kamu harus melampaui 3 tahapan utama:<br><br>1. <b>BELAJAR:</b> Pahami 6 slide materi & tantangan.<br>2. <b>BERMAIN:</b> Selesaikan 10 permainan literasi Gorontalo.<br>3. <b>BERLATIH:</b> Kerjakan 10 soal asesmen untuk cetak Laporan."
+      },
+      {
+        icon: "fa-heart",
+        title: "Semangat Cinta Ilmu & Lingkungan",
+        desc: "Nikmati kisah keindahan alam Gorontalo (Teluk Tomini, Danau Limboto), fitur buku panduan Dikdasmen, Erlangga, serta simulasi animasi bergeraknya!"
+      }
+    ];
+
+    /* DATA 6 SLIDE MATERI BELAJAR */
+    const belajarData = [
+      {
+        title: "Konsep Dasar Penjumlahan (Menggabungkan 2 Kelompok)",
+        quranArab: "وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ",
+        quranTrans: "Dan tolong-menolonglah kamu dalam (mengerjakan) kebajikan dan takwa... (QS. Al-Ma'idah: 2)",
+        quranWisdom: "Penjumlahan adalah tindakan menggabungkan benda. Seperti halnya tolong-menolong, gabungan dua kebaikan akan menghasilkan manfaat yang lebih besar.",
+        content: `
+          <p class="mb-3">Penjumlahan artinya <strong>menggabungkan atau menjumlahkan dua kelompok benda</strong> menjadi satu kesatuan yang lebih banyak. Penjumlahan dilambangkan dengan tanda tambah (<strong>+</strong>) dan hasil akhirnya dilambangkan dengan sama dengan (<strong>=</strong>).</p>
+          <div class="bg-emerald-50 p-4 rounded-xl border border-emerald-200 mb-3 flex items-center justify-around text-center">
+            <div>
+              <span class="text-3xl block">🌽🌽🌽</span>
+              <span class="text-xs font-bold text-emerald-800">3 Jagung Gorontalo</span>
+            </div>
+            <span class="text-2xl font-black text-emerald-600">+</span>
+            <div>
+              <span class="text-3xl block">🌽🌽</span>
+              <span class="text-xs font-bold text-emerald-800">2 Jagung Gorontalo</span>
+            </div>
+            <span class="text-2xl font-black text-emerald-600">=</span>
+            <div>
+              <span class="text-3xl block">🌽🌽🌽🌽🌽</span>
+              <span class="text-xs font-bold text-emerald-900">5 Jagung Berkah</span>
+            </div>
+          </div>
+          <p class="text-xs text-slate-600 italic">Konteks Gorontalo: Petani di dataran agraris Gorontalo memanen jagung dengan penuh kesyukuran atas karunia Allah SWT.</p>
+        `,
+        interactiveType: "mcq",
+        question: "Di kebun sekolah MIN 1 Kota Gorontalo terdapat 4 pohon jagung muda, lalu para siswa menanam lagi 3 pohon. Berapakah total pohon jagung?",
+        options: ["A. 6 Pohon", "B. 7 Pohon", "C. 8 Pohon"],
+        correctIndex: 1
+      },
+      {
+        title: "Penjumlahan dengan Membilang Maju",
+        quranArab: "وَزِدْنَٰهُ هُدًى",
+        quranTrans: "Dan Kami tambahkan kepada mereka petunjuk... (QS. Al-Kahf: 13)",
+        quranWisdom: "Membilang maju mengajarkan kita untuk selalu melangkah ke depan dan menambah ilmu setiap hari.",
+        content: `
+          <p class="mb-3">Teknik <strong>Membilang Maju</strong> dilakukan dengan menyimpan bilangan pertama di ingatan/mulut, lalu melanjutkan hitungan sebanyak bilangan kedua menggunakan jari.</p>
+          <div class="bg-amber-50 p-4 rounded-xl border border-amber-200 mb-3">
+            <h5 class="font-bold text-amber-900 text-xs mb-1">Contoh Hitung: 8 + 4</h5>
+            <ol class="list-decimal list-inside text-xs text-slate-700 space-y-1">
+              <li>Simpan angka <strong>8</strong> di dalam hati/mulut.</li>
+              <li>Buka 4 jari tangan.</li>
+              <li>Hitung maju dari 8 ➔ <strong>9, 10, 11, 12</strong>.</li>
+              <li>Jadi, <strong>8 + 4 = 12</strong>.</li>
+            </ol>
+          </div>
+        `,
+        interactiveType: "mcq",
+        question: "Hitunglah penjumlahan 9 + 5 menggunakan teknik membilang maju. Berapakah hasilnya?",
+        options: ["A. 13", "B. 14", "C. 15"],
+        correctIndex: 1
+      },
+      {
+        title: "Penjumlahan Pasangan Bilangan 10 (Make 10 Strategy)",
+        quranArab: "تِلْكَ عَشَرَةٌ كَامِلَةٌ",
+        quranTrans: "Itulah sepuluh (hari) yang sempurna... (QS. Al-Baqarah: 196)",
+        quranWisdom: "Angka 10 adalah simbol kesempurnaan. Membentuk angka 10 mempermudah perhitungan yang rumit.",
+        content: `
+          <p class="mb-3">Strategi <strong>Membuat 10 (Make Ten)</strong> sangat membantu menjumlahkan bilangan di atas 10. Pasangan angka yang menghasilkan 10 adalah:</p>
+          <div class="grid grid-cols-2 sm:grid-cols-5 gap-2 text-center text-xs mb-3 font-bold">
+            <div class="bg-white p-2 rounded-lg border border-slate-200">1 + 9 = 10</div>
+            <div class="bg-white p-2 rounded-lg border border-slate-200">2 + 8 = 10</div>
+            <div class="bg-white p-2 rounded-lg border border-slate-200">3 + 7 = 10</div>
+            <div class="bg-white p-2 rounded-lg border border-slate-200">4 + 6 = 10</div>
+            <div class="bg-white p-2 rounded-lg border border-slate-200">5 + 5 = 10</div>
+          </div>
+        `,
+        interactiveType: "mcq",
+        question: "Berapakah pasangan angka untuk 7 agar menjadi 10?",
+        options: ["A. 2", "B. 3", "C. 4"],
+        correctIndex: 1
+      },
+      {
+        title: "Penjumlahan dengan Garis Bilangan (Visual Line)",
+        quranArab: "إِنَّا كُلَّ شَيْءٍ خَلَقْنَٰهُ بِقَدَرٍ",
+        quranTrans: "Sungguh, Kami menciptakan segala sesuatu menurut ukuran... (QS. Al-Qamar: 49)",
+        quranWisdom: "Garis bilangan menunjukkan keteraturan ciptaan Allah. Setiap langkah hitungan memiliki ukuran yang pasti.",
+        content: `
+          <p class="mb-3">Garis bilangan adalah garis lurus bertuliskan angka berurutan dari 0, 1, 2, hingga 20. Penjumlahan berarti <strong>melompat ke arah kanan</strong>.</p>
+          <div class="bg-teal-50 p-4 rounded-xl border border-teal-200 mb-3 text-center">
+            <p class="text-xs font-bold text-teal-900 mb-2">Hitung 6 + 7 pada Garis Bilangan:</p>
+            <div class="text-sm font-mono tracking-widest bg-white p-2 rounded-lg border border-teal-300">
+              0-1-2-3-4-5-[6]--(Lompat 7 langkah kanan)--> [13]
+            </div>
+          </div>
+        `,
+        interactiveType: "mcq",
+        question: "Jika kamu berdiri di angka 11 pada garis bilangan, lalu melompat 4 langkah ke kanan, di manakah posisi kamu sekarang?",
+        options: ["A. 14", "B. 15", "C. 16"],
+        correctIndex: 1
+      },
+      {
+        title: "Penjumlahan Bersusun Ke Bawah (Nilai Tempat)",
+        quranArab: "وَأَحْصَىٰ كُلَّ شَيْءٍ عَدَدًا",
+        quranTrans: "Dan Dia menghitung segala sesuatu satu per satu... (QS. Al-Jinn: 28)",
+        quranWisdom: "Menghitung secara rapi sesuai satuan dan puluhan melatih sikap ketelitian.",
+        content: `
+          <p class="mb-3">Untuk menjumlahkan bilangan dua angka, kita pisahkan berdasarkan <strong>Nilai Tempat Satuan dan Puluhan</strong> lalu dijumlahkan lurus ke bawah.</p>
+          <div class="bg-white p-4 rounded-xl border border-slate-300 max-w-xs mx-auto text-center font-mono text-sm mb-3 shadow-sm">
+            <div class="text-slate-500 text-xs flex justify-between px-6 border-b pb-1 mb-1"><span>Puluhan</span><span>Satuan</span></div>
+            <div class="flex justify-between px-6"><span>1</span><span>2</span></div>
+            <div class="flex justify-between px-6"><span>0</span><span>6</span><span class="font-bold text-emerald-600">+</span></div>
+            <hr class="my-1 border-slate-400">
+            <div class="flex justify-between px-6 font-bold text-emerald-800"><span>1</span><span>8</span></div>
+          </div>
+        `,
+        interactiveType: "mcq",
+        question: "Berapakah hasil dari penjumlahan bersusun 13 + 4?",
+        options: ["A. 17", "B. 16", "C. 18"],
+        correctIndex: 0
+      },
+      {
+        title: "Soal Cerita & Aplikasi Cinta Lingkungan Gorontalo",
+        quranArab: "وَلا تُفْسِدُوا فِي الأَرْضِ بَعْدَ إِصْلاحِهَا",
+        quranTrans: "Dan janganlah kamu membuat kerusakan di bumi... (QS. Al-A'raf: 56)",
+        quranWisdom: "Matematika digunakan untuk mengukur dan menjaga kebersihan alam demi wujud cinta lingkungan.",
+        content: `
+          <p class="mb-3">Siswa MIN 1 Kota Gorontalo mengadakan aksi cinta lingkungan dengan membersihkan sampah plastik di pesisir Pantai Leato, Teluk Tomini.</p>
+          <div class="bg-emerald-100 p-4 rounded-xl border border-emerald-300 mb-3 text-xs text-emerald-900 space-y-1">
+            <p>• Kelompok A mengumpulkan <strong>9 botol plastik</strong>.</p>
+            <p>• Kelompok B mengumpulkan <strong>8 botol plastik</strong>.</p>
+            <p class="font-bold pt-1 border-t border-emerald-300">Total Sampah Terkumpul = 9 + 8 = 17 Botol Plastik Didaur Ulang!</p>
+          </div>
+        `,
+        interactiveType: "mcq",
+        question: "Aisyah membawa 11 bibit pohon kelapa dan Fatimah membawa 7 bibit pohon kelapa untuk ditanam di pinggir Danau Limboto. Berapa total bibit kelapa mereka?",
+        options: ["A. 17 Bibit", "B. 18 Bibit", "C. 19 Bibit"],
+        correctIndex: 1
+      }
+    ];
+
+    /* DATA 10 TANTANGAN BERMAIN */
+    const bermainData = [
+      {
+        id: 1,
+        type: "mcq",
+        stimulus: "Provinsi Gorontalo sangat terkenal dengan hasil pertanian jagung kuning yang melimpah. Di Madrasah Ibtidaiyah MIN 1 Kota Gorontalo, para murid kelas I diajak berkunjung ke kebun edukasi jagung di kawasan pesisir Teluk Tomini. Ahmad memetik 7 buah jagung manis yang segar dari kebun sebelah timur. Tidak lama kemudian, Siti membantu dengan membawa 6 buah jagung lagi dari kebun sebelah barat.",
+        question: "Berapa total jumlah jagung manis yang dikumpulkan oleh Ahmad dan Siti di dalam keranjang bambu?",
+        options: ["12 Jagung", "13 Jagung", "14 Jagung", "15 Jagung"],
+        correct: 1
+      },
+      {
+        id: 2,
+        type: "match",
+        stimulus: "Kawasan Danau Limboto di Gorontalo merupakan tempat hidup berbagai jenis ikan air tawar seperti ikan Payangka dan ikan Mujair. Pak Rusli seorang nelayan yang ramah menangkap 8 ekor ikan Payangka di pagi hari. Pada sore harinya, beliau mendapat tambahan 7 ekor ikan Mujair yang segar.",
+        leftItems: ["8 + 7", "9 + 5", "6 + 6", "10 + 4"],
+        rightItems: ["15", "14", "12", "14"],
+        correctMatches: { "8 + 7": "15", "9 + 5": "14", "6 + 6": "12", "10 + 4": "14" }
+      },
+      {
+        id: 3,
+        type: "dragdrop",
+        stimulus: "Di pelabuhan Gorontalo, para santri MIN 1 Kota Gorontalo sedang mengamati burung-burung camar yang terbang indah di atas pesisir laut. Di atas batu karang pertama terlihat 9 ekor burung camar sedang beristirahat. Tak lama kemudian, datang lagi rombongan 8 ekor burung camar hinggap di sampingnya.",
+        equationText: "9 + 8 = ",
+        draggableNumbers: [15, 16, 17, 18],
+        correct: 17
+      },
+      {
+        id: 4,
+        type: "sort",
+        stimulus: "Ibu Guru Lisna Habibie, M.Pd membagikan kartu bilangan penjumlahan kepada empat kelompok siswa di kelas I MIN 1 Kota Gorontalo. Urutkanlah hasil penjumlahan berikut dari PALING KECIL ke PALING BESAR.",
+        items: [
+          { label: "A (5 + 4)", val: 9 },
+          { label: "B (8 + 5)", val: 13 },
+          { label: "C (9 + 7)", val: 16 },
+          { label: "D (10 + 9)", val: 19 }
+        ],
+        correctOrder: ["A (5 + 4)", "B (8 + 5)", "C (9 + 7)", "D (10 + 9)"]
+      },
+      {
+        id: 5,
+        type: "mcq_complex",
+        stimulus: "Siti dan teman-temannya sedang menyusun buah jeruk lokal Gorontalo untuk acara maulid di madrasah. Di meja A terdapat piring berisi (8 + 6) jeruk. Di meja B terdapat piring berisi (9 + 5) jeruk. Di meja C terdapat piring berisi (7 + 8) jeruk.",
+        options: [
+          "Penjumlahan Meja A (8 + 6 = 14)",
+          "Penjumlahan Meja B (9 + 5 = 14)",
+          "Penjumlahan Meja C (7 + 8 = 15)",
+          "Hanya Meja A dan Meja B yang bernilai 14"
+        ],
+        correct: 3
+      },
+      {
+        id: 6,
+        type: "mcq",
+        stimulus: "Teluk Tomini Gorontalo memiliki terumbu karang yang sangat cantik. Umar melihat 11 ekor ikan badut berwarna oranye berenang di dekat anemon laut. Beberapa menit kemudian, 6 ekor ikan badut kecil lainnya bergabung.",
+        question: "Berapakah jumlah total ikan badut yang berenang bersama di terumbu karang Teluk Tomini?",
+        options: ["16 ekor", "17 ekor", "18 ekor", "19 ekor"],
+        correct: 1
+      },
+      {
+        id: 7,
+        type: "dragdrop",
+        stimulus: "Kelompok Tani Barokah Gorontalo menanam 12 pohon kelapa di area utara dan 7 pohon di area selatan.",
+        equationText: "12 + 7 = ",
+        draggableNumbers: [17, 18, 19, 20],
+        correct: 19
+      },
+      {
+        id: 8,
+        type: "match",
+        stimulus: "Anak-anak kelas I MIN 1 Kota Gorontalo melakukan studi lapangan ke benteng bersejarah Otanaha. Jodohkanlah soal penjumlahan tangga berikut dengan jawaban yang benar!",
+        leftItems: ["11 + 4", "13 + 5", "10 + 10", "14 + 3"],
+        rightItems: ["15", "18", "20", "17"],
+        correctMatches: { "11 + 4": "15", "13 + 5": "18", "10 + 10": "20", "14 + 3": "17" }
+      },
+      {
+        id: 9,
+        type: "sort",
+        stimulus: "Urutkanlah paket penjumlahan kue Karawo Gorontalo ini dari HASIL TERBESAR ke HASIL TERKECIL!",
+        items: [
+          { label: "Paket 1 (10 + 8)", val: 18 },
+          { label: "Paket 2 (9 + 6)", val: 15 },
+          { label: "Paket 3 (7 + 5)", val: 12 },
+          { label: "Paket 4 (6 + 4)", val: 10 }
+        ],
+        correctOrder: ["Paket 1 (10 + 8)", "Paket 2 (9 + 6)", "Paket 3 (7 + 5)", "Paket 4 (6 + 4)"]
+      },
+      {
+        id: 10,
+        type: "mcq",
+        stimulus: "Perpustakaan MIN 1 Kota Gorontalo mendapat hibah 15 buku cerita islami dan 5 buku cerita Al-Qur'an.",
+        question: "Berapakah total keseluruhan buku cerita yang ada di perpustakaan madrasah sekarang?",
+        options: ["18 buku", "19 buku", "20 buku", "21 buku"],
+        correct: 2
+      }
+    ];
+
+    /* DATA 10 SOAL ASESMEN BERJENJANG */
+    const quizData = [
+      { id: 1, level: 1, levelLabel: "Level 1 - Pemahaman Dasar (8 Poin)", stimulus: "Di halaman MIN 1 Kota Gorontalo terdapat 6 ekor burung pipit di pohon mangga. Lalu datang 5 ekor burung lagi.", question: "Berapakah jumlah keseluruhan burung pipit?", options: ["A. 10 Ekor", "B. 11 Ekor", "C. 12 Ekor", "D. 13 Ekor"], correct: 1, weight: 8 },
+      { id: 2, level: 1, levelLabel: "Level 1 - Pemahaman Dasar (8 Poin)", stimulus: "Fatma membeli 8 buah kue sabongi khas Gorontalo, lalu ibunya memberikan 4 buah lagi.", question: "Berapa total kue sabongi milik Fatma?", options: ["A. 11 Buah", "B. 12 Buah", "C. 13 Buah", "D. 14 Buah"], correct: 1, weight: 8 },
+      { id: 3, level: 1, levelLabel: "Level 1 - Pemahaman Dasar (8 Poin)", stimulus: "Pada garis bilangan, posisi panah awal di angka 9. Panah melompat 6 langkah ke kanan.", question: "Hasil dari 9 + 6 adalah...", options: ["A. 14", "B. 15", "C. 16", "D. 17"], correct: 1, weight: 8 },
+      { id: 4, level: 2, levelLabel: "Level 2 - Aplikasi & Penerapan (10 Poin)", stimulus: "Kelompok A mengumpulkan 9 kantong sampah plastik. Kelompok B mengumpulkan 7 kantong sampah organik.", question: "Berapa total kantong sampah seluruhnya?", options: ["A. 15 Kantong", "B. 16 Kantong", "C. 17 Kantong", "D. 18 Kantong"], correct: 1, weight: 10 },
+      { id: 5, level: 2, levelLabel: "Level 2 - Aplikasi & Penerapan (10 Poin)", stimulus: "Hitunglah penjumlahan bersusun ke bawah untuk angka 13 dan 5.", question: "Hasil penjumlahan 13 + 5 adalah...", options: ["A. 17", "B. 18", "C. 19", "D. 20"], correct: 1, weight: 10 },
+      { id: 6, level: 2, levelLabel: "Level 2 - Aplikasi & Penerapan (10 Poin)", stimulus: "Petani memanen 10 karung jagung di pagi hari dan 9 karung di sore hari.", question: "Berapakah total karung jagung?", options: ["A. 18 Karung", "B. 19 Karung", "C. 20 Karung", "D. 21 Karung"], correct: 1, weight: 10 },
+      { id: 7, level: 2, levelLabel: "Level 2 - Aplikasi & Penerapan (10 Poin)", stimulus: "Aisyah memiliki 7 stiker kaligrafi Al-Qur'an. Kakaknya memberi 8 stiker lagi.", question: "Berapakah total stiker milik Aisyah?", options: ["A. 14 Stiker", "B. 15 Stiker", "C. 16 Stiker", "D. 17 Stiker"], correct: 1, weight: 10 },
+      { id: 8, level: 3, levelLabel: "Level 3 - Penalaran HOTS (12 Poin)", stimulus: "Ibrahim ingin menjumlahkan 8 + 7 dengan strategi 'Membuat 10'. Ia memecah 7 menjadi (2 + 5), lalu (8 + 2 = 10).", question: "Langkah penalaran selanjutnya dan hasil akhirnya adalah...", options: ["A. Menjumlahkan 10 + 5 = 15", "B. Menjumlahkan 10 + 2 = 12", "C. Mengurangi 10 - 5 = 5", "D. Menjumlahkan 8 + 5 = 13"], correct: 0, weight: 12 },
+      { id: 9, level: 3, levelLabel: "Level 3 - Penalaran HOTS (12 Poin)", stimulus: "Keranjang X: (9 + 4) mangga, Keranjang Y: (8 + 6) mangga, Keranjang Z: (7 + 7) mangga.", question: "Pernyataan analisis yang BENAR adalah...", options: ["A. Keranjang X (13) lebih banyak dari Keranjang Y (14)", "B. Keranjang Y (14) dan Keranjang Z (14) memiliki jumlah SAMA", "C. Keranjang Z (14) lebih sedikit dari Keranjang X (13)", "D. Keranjang X paling banyak"], correct: 1, weight: 12 },
+      { id: 10, level: 3, levelLabel: "Level 3 - Penalaran HOTS (12 Poin)", stimulus: "Kelas I A menyumbang 11 buku. Kelas I B menyumbang 4 buku lebih banyak dari Kelas I A.", question: "Jumlah buku Kelas I B dan total gabungan kedua kelas adalah...", options: ["A. Kelas I B = 15, Total = 20", "B. Kelas I B = 15, Total = 26", "C. Kelas I B = 14, Total = 25", "D. Kelas I B = 16, Total = 27"], correct: 1, weight: 12 }
+    ];
+
+    /* APP INIT */
+    window.onload = function() {
+      setTimeout(() => {
+        const splash = document.getElementById('splashScreen');
+        if (splash) {
+          splash.classList.add('opacity-0');
+          setTimeout(() => splash.remove(), 300);
+        }
+      }, 300);
+      renderGuideSlide();
+      syncQuestionsToGoogleSheets(); // Sinkronkan data soal ke Sheet "Data Soal"
+    };
+
+    function showScreen(screenId) {
+      const screens = ['coverScreen', 'identityScreen', 'guideScreen', 'menuScreen', 'belajarScreen', 'bermainScreen', 'berlatihScreen', 'reportScreen'];
+      screens.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.classList.add('hidden');
+      });
+
+      const target = document.getElementById(screenId);
+      if (target) target.classList.remove('hidden');
+
+      const header = document.getElementById('appHeader');
+      if (screenId === 'coverScreen' || screenId === 'identityScreen' || screenId === 'splashScreen') {
+        header.classList.add('hidden');
+      } else {
+        header.classList.remove('hidden');
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    /* Modal Controls */
+    function openDeveloperModal() { document.getElementById('developerModal').classList.remove('hidden'); }
+    function closeDeveloperModal() { document.getElementById('developerModal').classList.add('hidden'); }
+    function openObjectiveModal() { document.getElementById('objectiveModal').classList.remove('hidden'); }
+    function closeObjectiveModal() { document.getElementById('objectiveModal').classList.add('hidden'); }
+    function openPanduanDikdasmenModal() { document.getElementById('panduanDikdasmenModal').classList.remove('hidden'); }
+    function closePanduanDikdasmenModal() { document.getElementById('panduanDikdasmenModal').classList.add('hidden'); }
+    function openBukuErlanggaModal() { document.getElementById('bukuErlanggaModal').classList.remove('hidden'); }
+    function closeBukuErlanggaModal() { document.getElementById('bukuErlanggaModal').classList.add('hidden'); }
+    function openAnimasiMateriModal() { document.getElementById('animasiMateriModal').classList.remove('hidden'); }
+    function closeAnimasiMateriModal() { document.getElementById('animasiMateriModal').classList.add('hidden'); }
+    function openGemsGambarModal() { document.getElementById('gemsGambarModal').classList.remove('hidden'); }
+    function closeGemsGambarModal() { document.getElementById('gemsGambarModal').classList.add('hidden'); }
+
+    /* Interactive Animation Simulation Trigger */
+    function triggerAnimSim(numA, numB) {
+      const groupA = document.getElementById('animGroupA');
+      const groupB = document.getElementById('animGroupB');
+      const res = document.getElementById('animResult');
+
+      groupA.innerHTML = Array(numA).fill('<span class="text-3xl animate-bounce">🥭</span>').join('');
+      groupB.innerHTML = Array(numB).fill('<span class="text-3xl animate-bounce">🍊</span>').join('');
+      res.innerHTML = `${numA} + ${numB} = <span class="text-amber-300 text-lg font-extrabold">${numA + numB} Buah</span>`;
+      confetti({ particleCount: 25, spread: 50, origin: { y: 0.6 } });
+    }
+
+    /* Interactive Gems Display */
+    function selectGemItem(icon, name, count) {
+      const display = document.getElementById('gemDisplayBox');
+      const icons = Array(count).fill(icon).join(' ');
+      display.innerHTML = `
+        <div class="animate-float">
+          <span class="text-2xl block mb-1">${icons}</span>
+          <span>Kamu memilih ${count} ${name}! Konsep Visual: ${count} Objek Kasih Sayang.</span>
+        </div>
+      `;
+    }
+
+    function handleLockedMenuClick(menu) {
+      if (menu === 'bermain' && !state.isBelajarCompleted) {
+        document.getElementById('lockedModalText').innerText = "Modul BERMAIN masih terkunci 🔒. Harap tuntaskan 6 slide materi di Menu BELAJAR terlebih dahulu!";
+        document.getElementById('lockedModal').classList.remove('hidden');
+      } else if (menu === 'berlatih' && !state.isBermainCompleted) {
+        document.getElementById('lockedModalText').innerText = "Modul BERLATIH masih terkunci 🔒. Harap selesaikan 10 tantangan di Menu BERMAIN terlebih dahulu!";
+        document.getElementById('lockedModal').classList.remove('hidden');
+      } else if (menu === 'bermain' && state.isBelajarCompleted) {
+        startBermainModule();
+      } else if (menu === 'berlatih' && state.isBermainCompleted) {
+        startBerlatihModule();
+      }
+    }
+    function closeLockedModal() { document.getElementById('lockedModal').classList.add('hidden'); }
+
+    /* Identity Handling */
+    function goToIdentityScreen() { showScreen('identityScreen'); }
+
+    function handleIdentitySubmit(e) {
+      e.preventDefault();
+      const name = document.getElementById('inputName').value.trim();
+      const cls = document.getElementById('inputClass').value;
+
+      if (!name || !cls) {
+        document.getElementById('identityError').classList.remove('hidden');
+        return;
+      }
+
+      state.studentName = name;
+      state.studentClass = cls;
+
+      document.getElementById('headerStudentName').innerText = name;
+      document.getElementById('headerStudentClass').innerText = cls;
+
+      showScreen('guideScreen');
+    }
+
+    /* Guide Nav */
+    function renderGuideSlide() {
+      const slide = guideSlides[state.currentGuideIndex];
+      const container = document.getElementById('guideSlideContent');
+      document.getElementById('guideSlideBadge').innerText = `Slide ${state.currentGuideIndex + 1} / ${guideSlides.length}`;
+
+      container.innerHTML = `
+        <div class="text-center py-4 animate-float">
+          <div class="w-20 h-20 rounded-3xl bg-emerald-100 text-emerald-700 mx-auto flex items-center justify-center text-4xl mb-4 shadow-md border border-emerald-200">
+            <i class="fas ${slide.icon}"></i>
+          </div>
+          <h3 class="text-2xl font-extrabold text-slate-900 mb-2">${slide.title}</h3>
+          <p class="text-xs md:text-sm text-slate-600 max-w-lg mx-auto leading-relaxed font-medium">${slide.desc}</p>
+        </div>
+      `;
+
+      const btnNext = document.getElementById('btnGuideNext');
+      if (state.currentGuideIndex === guideSlides.length - 1) {
+        btnNext.innerHTML = 'Masuk ke Menu Utama <i class="fas fa-home"></i>';
+        btnNext.className = "px-6 py-2.5 rounded-xl bg-amber-500 text-white font-extrabold hover:bg-amber-600 transition text-sm flex items-center gap-1.5 shadow-md";
+      } else {
+        btnNext.innerHTML = 'Lanjut <i class="fas fa-chevron-right"></i>';
+        btnNext.className = "px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition text-sm flex items-center gap-1.5";
+      }
+    }
+
+    function changeGuideSlide(dir) {
+      state.currentGuideIndex += dir;
+      if (state.currentGuideIndex < 0) state.currentGuideIndex = 0;
+
+      if (state.currentGuideIndex >= guideSlides.length) {
+        goToMenuScreen();
+      } else {
+        renderGuideSlide();
+      }
+    }
+
+    function goToMenuScreen() { showScreen('menuScreen'); }
+
+    /* BELAJAR LOGIC */
+    function startBelajarModule() {
+      state.currentBelajarIndex = 0;
+      showScreen('belajarScreen');
+      renderBelajarSlide();
+    }
+
+    function renderBelajarSlide() {
+      const data = belajarData[state.currentBelajarIndex];
+      const container = document.getElementById('belajarSlideContainer');
+
+      document.getElementById('belajarSlideTitle').innerText = data.title;
+      document.getElementById('belajarSlideCounter').innerText = `Slide ${state.currentBelajarIndex + 1} dari ${belajarData.length}`;
+      document.getElementById('belajarProgressBar').style.width = `${((state.currentBelajarIndex + 1) / belajarData.length) * 100}%`;
+
+      container.innerHTML = `
+        <div class="space-y-4">
+          <div class="border-b border-emerald-100 pb-2">
+            <span class="text-[10px] font-bold uppercase tracking-wider text-emerald-700">Modul Belajar Matematika</span>
+            <h3 class="text-xl font-extrabold text-slate-900">${data.title}</h3>
+          </div>
+
+          <div class="bg-gradient-to-r from-emerald-800 to-teal-900 text-white p-4 rounded-2xl shadow-md space-y-2">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold uppercase tracking-widest text-amber-300 flex items-center gap-1">
+                <i class="fas fa-quran"></i> Integrasi Nilai Al-Qur'an
+              </span>
+            </div>
+            <p class="quran-text text-xl md:text-2xl text-right font-bold text-amber-200 leading-loose">${data.quranArab}</p>
+            <p class="text-xs text-emerald-100 italic">"${data.quranTrans}"</p>
+            <p class="text-[11px] text-amber-300 font-medium pt-1 border-t border-emerald-700/60">
+              <strong>Tadabbur/Hikmah:</strong> ${data.quranWisdom}
+            </p>
+          </div>
+
+          <div class="text-slate-700 text-xs md:text-sm leading-relaxed space-y-2">
+            ${data.content}
+          </div>
+
+          <div class="bg-amber-50/90 border-2 border-amber-300 p-4 rounded-2xl mt-4">
+            <div class="flex items-center space-x-2 mb-2">
+              <span class="w-6 h-6 rounded-full bg-amber-500 text-white flex items-center justify-center text-xs font-bold">
+                <i class="fas fa-puzzle-piece"></i>
+              </span>
+              <h4 class="text-xs font-extrabold text-amber-900 uppercase tracking-wider">Tantangan Pemantik Slide ${state.currentBelajarIndex + 1}</h4>
+            </div>
+            <p class="text-xs font-bold text-slate-800 mb-3">${data.question}</p>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-2" id="belajarOptionsGroup">
+              ${data.options.map((opt, idx) => `
+                <button onclick="checkBelajarPemantik(${idx}, ${data.correctIndex})" class="py-2.5 px-3 rounded-xl border-2 border-amber-200 bg-white hover:bg-amber-100 text-xs font-semibold text-slate-800 transition text-left flex items-center justify-between">
+                  <span>${opt}</span>
+                  <i class="fas fa-circle text-slate-300 text-[10px]" id="optIcon-${idx}"></i>
+                </button>
+              `).join('')}
+            </div>
+            <div id="belajarFeedback" class="hidden text-xs font-bold mt-2 p-2 rounded-lg text-center"></div>
+          </div>
+        </div>
+      `;
+
+      const btnPrev = document.getElementById('btnBelajarPrev');
+      const btnNext = document.getElementById('btnBelajarNext');
+
+      btnPrev.disabled = state.currentBelajarIndex === 0;
+      btnPrev.style.opacity = state.currentBelajarIndex === 0 ? "0.5" : "1";
+
+      if (state.currentBelajarIndex === belajarData.length - 1) {
+        btnNext.innerHTML = 'Selesaikan Belajar & Buka Bermain 🔓 <i class="fas fa-unlock"></i>';
+        btnNext.className = "px-6 py-2.5 rounded-xl bg-amber-500 text-white font-extrabold hover:bg-amber-600 transition text-sm flex items-center gap-1.5 shadow-lg";
+      } else {
+        btnNext.innerHTML = 'Slide Berikutnya <i class="fas fa-chevron-right"></i>';
+        btnNext.className = "px-6 py-2.5 rounded-xl bg-emerald-600 text-white font-bold hover:bg-emerald-700 transition text-sm flex items-center gap-1.5 shadow-md";
+      }
+    }
+
+    function checkBelajarPemantik(selected, correct) {
+      const fb = document.getElementById('belajarFeedback');
+      fb.classList.remove('hidden');
+
+      if (selected === correct) {
+        fb.className = "text-xs font-bold mt-2 p-2.5 rounded-xl bg-emerald-100 text-emerald-800 border border-emerald-300 text-center";
+        fb.innerHTML = '<i class="fas fa-check-circle text-emerald-600"></i> Masya Allah, Jawabanmu Benar dan Teliti! Semangat Cinta Ilmu.';
+        confetti({ particleCount: 30, spread: 60, origin: { y: 0.8 } });
+      } else {
+        fb.className = "text-xs font-bold mt-2 p-2.5 rounded-xl bg-red-100 text-red-800 border border-red-300 text-center";
+        fb.innerHTML = '<i class="fas fa-times-circle text-red-600"></i> Kurang tepat, coba teliti lagi ya sahabat!';
+      }
+    }
+
+    function changeBelajarSlide(dir) {
+      state.currentBelajarIndex += dir;
+
+      if (state.currentBelajarIndex >= belajarData.length) {
+        state.isBelajarCompleted = true;
+        unlockBermainUI();
+        goToMenuScreen();
+      } else {
+        renderBelajarSlide();
+      }
+    }
+
+    function unlockBermainUI() {
+      const card = document.getElementById('cardBermain');
+      const badge = document.getElementById('badgeBermain');
+      const btn = document.getElementById('btnBermain');
+      const iconBg = document.getElementById('iconBermainBg');
+
+      card.className = "glass-card rounded-3xl p-6 border-2 border-amber-500 shadow-xl hover:shadow-2xl transition transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between relative overflow-hidden group opacity-100";
+      badge.className = "px-3 py-1 rounded-full bg-amber-100 text-amber-800 text-xs font-extrabold flex items-center gap-1";
+      badge.innerHTML = '<i class="fas fa-lock-open text-amber-600"></i> TERBUKA';
+      btn.className = "w-full py-2.5 rounded-xl bg-amber-500 text-white text-xs font-bold hover:bg-amber-600 transition flex items-center justify-center gap-2 cursor-pointer";
+      btn.innerHTML = 'Mulai Bermain <i class="fas fa-gamepad"></i>';
+      iconBg.className = "w-14 h-14 rounded-2xl bg-amber-500 text-white flex items-center justify-center text-2xl shadow-md group-hover:scale-110 transition";
+    }
+
+    /* BERMAIN LOGIC */
+    function startBermainModule() {
+      state.currentGameIndex = 0;
+      state.gameScore = 0;
+      state.gameAnswers = [];
+      showScreen('bermainScreen');
+      renderBermainChallenge();
+    }
+
+    function renderBermainChallenge() {
+      const item = bermainData[state.currentGameIndex];
+      const container = document.getElementById('bermainContainer');
+
+      document.getElementById('gameCounterText').innerText = `Tantangan ${state.currentGameIndex + 1} / ${bermainData.length}`;
+      document.getElementById('gameScoreText').innerText = state.gameScore;
+
+      let mechanicHTML = '';
+
+      if (item.type === 'mcq' || item.type === 'mcq_complex') {
+        mechanicHTML = `
+          <div class="space-y-2 mt-3">
+            <p class="text-xs font-bold text-slate-800">${item.question || 'Pilihlah jawaban penjumlahan yang tepat:'}</p>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              ${item.options.map((opt, idx) => `
+                <label onclick="selectBermainMcq(${idx})" class="p-3 rounded-xl border-2 border-slate-200 bg-white hover:bg-amber-50 cursor-pointer text-xs font-semibold text-slate-800 transition flex items-center space-x-2 shadow-sm">
+                  <input type="radio" name="gameMcqOpt" value="${idx}" class="text-amber-500 focus:ring-amber-400">
+                  <span>${opt}</span>
+                </label>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else if (item.type === 'dragdrop') {
+        mechanicHTML = `
+          <div class="bg-amber-50/70 p-4 rounded-2xl border border-amber-200 text-center mt-3 space-y-3">
+            <p class="text-xs font-bold text-slate-800">Tarik atau Tap Angka yang Tepat ke Kotak Jawaban:</p>
+            <div class="flex items-center justify-center space-x-2 text-2xl font-black text-slate-800">
+              <span>${item.equationText}</span>
+              <div id="dropZoneGame" class="w-16 h-12 rounded-xl border-2 border-dashed border-amber-500 bg-white flex items-center justify-center text-amber-700 shadow-inner" ondragover="allowDrop(event)" ondrop="handleDrop(event)">
+                ?
+              </div>
+            </div>
+            <div class="flex justify-center gap-3 pt-2">
+              ${item.draggableNumbers.map(num => `
+                <div draggable="true" ondragstart="handleDragStart(event, ${num})" onclick="selectDragNumber(${num})" class="drag-item px-4 py-2 rounded-xl bg-amber-500 text-white font-extrabold text-sm shadow-md hover:bg-amber-600 transition">
+                  ${num}
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      } else if (item.type === 'match') {
+        mechanicHTML = `
+          <div class="mt-3 space-y-2">
+            <p class="text-xs font-bold text-slate-800">Jodohkan Soal Penjumlahan dengan Hasilnya:</p>
+            <div class="grid grid-cols-2 gap-4">
+              <div class="space-y-2">
+                ${item.leftItems.map((left, idx) => `
+                  <div class="p-2.5 rounded-xl bg-white border border-slate-300 text-xs font-bold text-slate-700 text-center">${left}</div>
+                `).join('')}
+              </div>
+              <div class="space-y-2">
+                ${item.leftItems.map((left, idx) => `
+                  <select id="matchSelect-${idx}" class="w-full p-2.5 rounded-xl border border-amber-300 bg-white text-xs font-bold text-amber-900 outline-none">
+                    <option value="">-- Hasil --</option>
+                    ${item.rightItems.map(right => `<option value="${right}">${right}</option>`).join('')}
+                  </select>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        `;
+      } else if (item.type === 'sort') {
+        mechanicHTML = `
+          <div class="mt-3 space-y-2 text-center">
+            <p class="text-xs font-bold text-slate-800">Urutkan Pilihan Berikut (Gunakan Tombol Ke Atas/Bawah):</p>
+            <div id="sortableList" class="space-y-2 max-w-sm mx-auto">
+              ${item.items.map((it, idx) => `
+                <div data-label="${it.label}" class="p-3 rounded-xl bg-white border border-amber-300 text-xs font-bold text-slate-800 flex items-center justify-between shadow-sm">
+                  <span>${it.label}</span>
+                  <div class="flex gap-1">
+                    <button onclick="moveSortItem(${idx}, -1)" class="px-2 py-1 bg-slate-100 rounded text-slate-600 hover:bg-slate-200">▲</button>
+                    <button onclick="moveSortItem(${idx}, 1)" class="px-2 py-1 bg-slate-100 rounded text-slate-600 hover:bg-slate-200">▼</button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      }
+
+      container.innerHTML = `
+        <div class="space-y-3">
+          <div class="bg-emerald-50/90 border border-emerald-200 p-4 rounded-2xl">
+            <span class="px-2.5 py-0.5 rounded-full bg-emerald-700 text-white text-[10px] font-extrabold uppercase tracking-wider block mb-1">
+              Stimulus Literasi & Numerasi Gorontalo
+            </span>
+            <p class="text-xs text-slate-700 leading-relaxed font-medium">${item.stimulus}</p>
+          </div>
+          ${mechanicHTML}
+        </div>
+      `;
+
+      state.currentSelectedDrag = null;
+    }
+
+    function allowDrop(e) { e.preventDefault(); }
+    function handleDragStart(e, num) { e.dataTransfer.setData("text", num); state.currentSelectedDrag = num; }
+    function handleDrop(e) {
+      e.preventDefault();
+      const num = e.dataTransfer.getData("text") || state.currentSelectedDrag;
+      if (num) {
+        document.getElementById('dropZoneGame').innerText = num;
+        state.currentSelectedDrag = parseInt(num);
+      }
+    }
+    function selectDragNumber(num) {
+      document.getElementById('dropZoneGame').innerText = num;
+      state.currentSelectedDrag = num;
+    }
+
+    function moveSortItem(index, direction) {
+      const item = bermainData[state.currentGameIndex];
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= item.items.length) return;
+
+      const temp = item.items[index];
+      item.items[index] = item.items[newIndex];
+      item.items[newIndex] = temp;
+      renderBermainChallenge();
+    }
+
+    function selectBermainMcq(idx) {
+      const radios = document.getElementsByName('gameMcqOpt');
+      if (radios[idx]) radios[idx].checked = true;
+    }
+
+    function submitGameAnswer() {
+      const item = bermainData[state.currentGameIndex];
+      let isCorrect = false;
+      let userAnsText = "";
+
+      if (item.type === 'mcq' || item.type === 'mcq_complex') {
+        const radios = document.getElementsByName('gameMcqOpt');
+        let selected = -1;
+        radios.forEach((r, i) => { if (r.checked) selected = i; });
+        if (selected === item.correct) isCorrect = true;
+        userAnsText = selected !== -1 ? item.options[selected] : "Tidak Dijawab";
+      } else if (item.type === 'dragdrop') {
+        if (state.currentSelectedDrag === item.correct) isCorrect = true;
+        userAnsText = state.currentSelectedDrag ? state.currentSelectedDrag.toString() : "Tidak Dijawab";
+      } else if (item.type === 'match') {
+        let allCorrect = true;
+        let pairs = [];
+        item.leftItems.forEach((left, idx) => {
+          const val = document.getElementById(`matchSelect-${idx}`).value;
+          pairs.push(`${left} -> ${val || '?'}`);
+          if (val !== item.correctMatches[left]) allCorrect = false;
+        });
+        isCorrect = allCorrect;
+        userAnsText = pairs.join(", ");
+      } else if (item.type === 'sort') {
+        const currentOrder = item.items.map(i => i.label);
+        isCorrect = JSON.stringify(currentOrder) === JSON.stringify(item.correctOrder);
+        userAnsText = currentOrder.join(" > ");
+      }
+
+      state.gameAnswers.push({
+        id: item.id,
+        userAns: userAnsText,
+        isCorrect: isCorrect
+      });
+
+      if (isCorrect) {
+        state.gameScore += 10;
+        confetti({ particleCount: 40, spread: 70, origin: { y: 0.7 } });
+      }
+
+      state.currentGameIndex++;
+
+      if (state.currentGameIndex >= bermainData.length) {
+        state.isBermainCompleted = true;
+        unlockBerlatihUI();
+        goToMenuScreen();
+      } else {
+        renderBermainChallenge();
+      }
+    }
+
+    function unlockBerlatihUI() {
+      const card = document.getElementById('cardBerlatih');
+      const badge = document.getElementById('badgeBerlatih');
+      const btn = document.getElementById('btnBerlatih');
+      const iconBg = document.getElementById('iconBerlatihBg');
+
+      card.className = "glass-card rounded-3xl p-6 border-2 border-teal-500 shadow-xl hover:shadow-2xl transition transform hover:-translate-y-1 cursor-pointer flex flex-col justify-between relative overflow-hidden group opacity-100";
+      badge.className = "px-3 py-1 rounded-full bg-teal-100 text-teal-800 text-xs font-extrabold flex items-center gap-1";
+      badge.innerHTML = '<i class="fas fa-lock-open text-teal-600"></i> TERBUKA';
+      btn.className = "w-full py-2.5 rounded-xl bg-teal-600 text-white text-xs font-bold hover:bg-teal-700 transition flex items-center justify-center gap-2 cursor-pointer";
+      btn.innerHTML = 'Mulai Asesmen <i class="fas fa-pen-nib"></i>';
+      iconBg.className = "w-14 h-14 rounded-2xl bg-teal-600 text-white flex items-center justify-center text-2xl shadow-md group-hover:scale-110 transition";
+    }
+
+    /* BERLATIH LOGIC */
+    function startBerlatihModule() {
+      state.currentQuizIndex = 0;
+      state.quizAnswers = new Array(10).fill(null);
+      showScreen('berlatihScreen');
+      renderQuizQuestion();
+    }
+
+    function renderQuizQuestion() {
+      const q = quizData[state.currentQuizIndex];
+      const container = document.getElementById('berlatihContainer');
+
+      document.getElementById('quizCounterText').innerText = `Soal ${state.currentQuizIndex + 1} / ${quizData.length}`;
+      const levelBadge = document.getElementById('quizLevelBadge');
+      levelBadge.innerText = q.levelLabel;
+
+      if (q.level === 1) {
+        levelBadge.className = "px-3 py-1 rounded-full text-[11px] font-extrabold bg-blue-100 text-blue-800 border border-blue-200";
+      } else if (q.level === 2) {
+        levelBadge.className = "px-3 py-1 rounded-full text-[11px] font-extrabold bg-amber-100 text-amber-800 border border-amber-200";
+      } else {
+        levelBadge.className = "px-3 py-1 rounded-full text-[11px] font-extrabold bg-purple-100 text-purple-800 border border-purple-200";
+      }
+
+      container.innerHTML = `
+        <div class="space-y-3">
+          <div class="bg-slate-50 border border-slate-200 p-4 rounded-2xl">
+            <span class="text-[10px] font-bold text-teal-700 uppercase tracking-wider block mb-1">
+              Stimulus Bacaan Soal Asesmen
+            </span>
+            <p class="text-xs text-slate-700 leading-relaxed font-medium">${q.stimulus}</p>
+          </div>
+
+          <div class="pt-2">
+            <h4 class="text-xs md:text-sm font-extrabold text-slate-900 mb-3">${q.question}</h4>
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+              ${q.options.map((opt, idx) => `
+                <label onclick="saveQuizAnswer(${idx})" class="p-3.5 rounded-xl border-2 ${state.quizAnswers[state.currentQuizIndex] === idx ? 'border-teal-600 bg-teal-50' : 'border-slate-200 bg-white'} hover:border-teal-300 cursor-pointer text-xs font-semibold text-slate-800 transition flex items-center space-x-2 shadow-sm">
+                  <input type="radio" name="quizOpt" value="${idx}" ${state.quizAnswers[state.currentQuizIndex] === idx ? 'checked' : ''} class="text-teal-600 focus:ring-teal-500">
+                  <span>${opt}</span>
+                </label>
+              `).join('')}
+            </div>
+          </div>
+        </div>
+      `;
+
+      const btnPrev = document.getElementById('btnQuizPrev');
+      const btnNext = document.getElementById('btnQuizNext');
+
+      btnPrev.disabled = state.currentQuizIndex === 0;
+      btnPrev.style.opacity = state.currentQuizIndex === 0 ? "0.5" : "1";
+
+      if (state.currentQuizIndex === quizData.length - 1) {
+        btnNext.innerHTML = 'Selesai & Lihat Laporan <i class="fas fa-check-circle"></i>';
+        btnNext.className = "px-6 py-2.5 rounded-xl bg-amber-500 text-white font-extrabold hover:bg-amber-600 transition text-sm shadow-md flex items-center gap-2";
+      } else {
+        btnNext.innerHTML = 'Simpan & Lanjut <i class="fas fa-arrow-right"></i>';
+        btnNext.className = "px-6 py-2.5 rounded-xl bg-teal-600 text-white font-extrabold hover:bg-teal-700 transition text-sm shadow-md flex items-center gap-2";
+      }
+    }
+
+    function saveQuizAnswer(idx) {
+      state.quizAnswers[state.currentQuizIndex] = idx;
+    }
+
+    function navigateQuiz(dir) {
+      state.currentQuizIndex += dir;
+
+      if (state.currentQuizIndex >= quizData.length) {
+        calculateFinalScoreAndShowReport();
+      } else {
+        renderQuizQuestion();
+      }
+    }
+
+    /* INTEGRASI GOOGLE APPS SCRIPT (GAS) */
+    function syncQuestionsToGoogleSheets() {
+      if (!GAS_URL || GAS_URL.includes("https://script.google.com/macros/s/AKfycbylmAg7EL3Tx2GDFPi3-b8Fy_Y8uv9OB7cyfKTw5umu4XL_NAsEI-VC_yFNiahtiNZGLA/exec")) return;
+
+      const questionsList = [];
+
+      // 1. Soal dari Menu Belajar
+      belajarData.forEach((item, index) => {
+        questionsList.push({
+          menu: "Belajar",
+          id: `Belajar-${index + 1}`,
+          stimulus: item.title,
+          question: item.question,
+          options: item.options.join(" | "),
+          correct: item.options[item.correctIndex]
+        });
+      });
+
+      // 2. Soal dari Menu Bermain
+      bermainData.forEach((item) => {
+        let opts = "";
+        let corr = "";
+        if (item.type === 'mcq' || item.type === 'mcq_complex') {
+          opts = item.options.join(" | ");
+          corr = item.options[item.correct];
+        } else if (item.type === 'dragdrop') {
+          opts = item.draggableNumbers.join(" | ");
+          corr = item.correct.toString();
+        } else if (item.type === 'match') {
+          opts = item.rightItems.join(" | ");
+          corr = JSON.stringify(item.correctMatches);
+        } else if (item.type === 'sort') {
+          opts = item.items.map(i => i.label).join(" | ");
+          corr = item.correctOrder.join(" -> ");
+        }
+
+        questionsList.push({
+          menu: "Bermain",
+          id: `Bermain-${item.id}`,
+          stimulus: item.stimulus,
+          question: item.question || "Tantangan Permainan",
+          options: opts,
+          correct: corr
+        });
+      });
+
+      // 3. Soal dari Menu Berlatih (Asesmen)
+      quizData.forEach((item) => {
+        questionsList.push({
+          menu: "Berlatih",
+          id: `Berlatih-${item.id}`,
+          stimulus: item.stimulus,
+          question: item.question,
+          options: item.options.join(" | "),
+          correct: item.options[item.correct]
+        });
+      });
+
+      fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          action: "saveQuestions",
+          questions: questionsList
+        })
+      }).catch(err => console.log("Gagal sinkronisasi soal:", err));
+    }
+
+    function sendResultToGoogleSheets(correctCount, wrongCount, detailedAnswers) {
+      const syncStatus = document.getElementById('gasSyncStatus');
+      if (syncStatus) {
+        syncStatus.classList.remove('hidden');
+        syncStatus.className = "mb-4 p-3 rounded-xl text-xs font-bold bg-blue-50 text-blue-800 border border-blue-200 flex items-center gap-2";
+        syncStatus.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Menyimpan hasil asesmen ke Google Sheets...';
+      }
+
+      if (!GAS_URL || GAS_URL.includes("URL_GAS_ANDA_DISINI")) {
+        if (syncStatus) {
+          syncStatus.className = "mb-4 p-3 rounded-xl text-xs font-bold bg-amber-50 text-amber-800 border border-amber-200 flex items-center gap-2";
+          syncStatus.innerHTML = '<i class="fas fa-exclamation-triangle text-amber-600"></i> Mode Offline: URL Google Apps Script (GAS_URL) belum dikonfigurasi.';
+        }
+        return;
+      }
+
+      const payload = {
+        action: "saveResult",
+        studentName: state.studentName,
+        studentClass: state.studentClass,
+        correctCount: correctCount,
+        wrongCount: wrongCount,
+        answers: detailedAnswers
+      };
+
+      fetch(GAS_URL, {
+        method: "POST",
+        mode: "no-cors",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      })
+      .then(() => {
+        if (syncStatus) {
+          syncStatus.className = "mb-4 p-3 rounded-xl text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200 flex items-center gap-2";
+          syncStatus.innerHTML = '<i class="fas fa-check-circle text-emerald-600"></i> Hasil asesmen berhasil disimpan otomatis ke Google Sheets Guru!';
+        }
+      })
+      .catch((err) => {
+        if (syncStatus) {
+          syncStatus.className = "mb-4 p-3 rounded-xl text-xs font-bold bg-red-50 text-red-800 border border-red-200 flex items-center gap-2";
+          syncStatus.innerHTML = '<i class="fas fa-times-circle text-red-600"></i> Gagal menyimpan data ke Google Sheets. Periksa koneksi internet.';
+        }
+      });
+    }
+
+    /* LAPORAN & PDF PRINT */
+    function calculateFinalScoreAndShowReport() {
+      let totalScore = 0;
+      let lvl1Score = 0;
+      let lvl2Score = 0;
+      let lvl3Score = 0;
+      let correctCount = 0;
+      let wrongCount = 0;
+      const detailedAnswers = {};
+
+      quizData.forEach((q, idx) => {
+        const userAns = state.quizAnswers[idx];
+        const isCorrect = (userAns === q.correct);
+
+        if (isCorrect) {
+          totalScore += q.weight;
+          correctCount++;
+          if (q.level === 1) lvl1Score += q.weight;
+          if (q.level === 2) lvl2Score += q.weight;
+          if (q.level === 3) lvl3Score += q.weight;
+        } else {
+          wrongCount++;
+        }
+
+        detailedAnswers[`Soal ${idx + 1}`] = userAns !== null ? q.options[userAns] : "Tidak Dijawab";
+      });
+
+      state.quizScore = totalScore;
+
+      document.getElementById('pdfStudentName').innerText = state.studentName;
+      document.getElementById('pdfStudentClass').innerText = state.studentClass;
+      document.getElementById('pdfGameScore').innerText = state.gameScore;
+      document.getElementById('pdfQuizScore').innerText = `${totalScore} / 100`;
+
+      let predicate = "Kurang Teliti";
+      if (totalScore >= 90) predicate = "Sangat Baik (Mumtaz) 🌟";
+      else if (totalScore >= 75) predicate = "Baik (Jayyid) 👍";
+      else if (totalScore >= 60) predicate = "Cukup (Maqbul)";
+      document.getElementById('pdfPredicate').innerText = `Predikat: ${predicate}`;
+
+      document.getElementById('lvl1Detail').innerText = `${lvl1Score} / 24 Poin`;
+      document.getElementById('lvl2Detail').innerText = `${lvl2Score} / 40 Poin`;
+      document.getElementById('lvl3Detail').innerText = `${lvl3Score} / 36 Poin`;
+
+      const hotsPercentage = Math.round((lvl3Score / 36) * 100);
+      document.getElementById('pdfHotsScore').innerText = `${hotsPercentage}%`;
+
+      const today = new Date();
+      document.getElementById('pdfDate').innerText = `Tanggal: ${today.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' })}`;
+
+      showScreen('reportScreen');
+      confetti({ particleCount: 80, spread: 100, origin: { y: 0.5 } });
+
+      // Kirim Hasil Asesmen Ke Backend Google Sheets
+      sendResultToGoogleSheets(correctCount, wrongCount, detailedAnswers);
+    }
+
+    function downloadReportPDF() {
+      const element = document.getElementById('pdfReportContainer');
+      const filename = `Laporan_Matematika_${state.studentName.replace(/\s+/g, '_')}.pdf`;
+
+      if (typeof html2pdf !== 'undefined') {
+        const opt = {
+          margin: 0.3,
+          filename: filename,
+          image: { type: 'jpeg', quality: 0.98 },
+          html2canvas: { scale: 2 },
+          jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+        };
+        html2pdf().set(opt).from(element).save();
+      } else {
+        window.print();
+      }
+    }
+  </script>
+</body>
+</html>
